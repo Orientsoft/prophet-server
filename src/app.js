@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 import * as mongodb from './lib/mongodb';
 import * as redis from './lib/redis';
+import * as pm2 from './lib/pm2';
 import { httpLogger } from './lib/logger';
 import ssr from './lib/ssr';
 import routers from './routers';
@@ -18,6 +19,9 @@ mongodb.connect();
 
 // Redis Connection
 redis.connect();
+
+// PM2 Connection
+pm2.connect();
 
 // Express MongoDB session storage
 app.use(session({

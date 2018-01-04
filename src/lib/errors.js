@@ -16,7 +16,18 @@ const errors = {
     },
     CONSTRAINT_ERROR: {
         code: 20100, message: '约束错误', model: '', paths: []
-    }
+    },
+
+    PORT_NOT_FOUND: { code: 30100, message: '找不到端口' },
+    PORT_NAME_EXISTED: { code: 30200, message: '端口名称已经被占用' },
+
+    TASK_NOT_FOUND: { code: 40100, message: '找不到任务' },
+    TASK_NAME_EXISTED: { code: 40200, message: '任务名称已经被占用' },
+    TASK_INPUT_NOT_FOUND: { code: 40300, message: '找不到输入端口' },
+    TASK_OUTPUT_NOT_FOUND: { code: 40400, message: '找不到输出端口' },
+
+    FLOW_NOT_FOUND: { code: 50100, message: '找不到流程' },
+    FLOW_NAME_EXISTED: { code: 50200, message: '流程名称已经被占用' },
 };
 
 export default errors;
