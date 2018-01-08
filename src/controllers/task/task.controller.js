@@ -1,7 +1,9 @@
+import _ from 'lodash';
 import Promise from 'bluebird';
-import { Task } from '../../models';
+import { Task, Port } from '../../models';
 import * as CONSTS from '../../consts';
-import { errors } from '../../lib/errors';
+import errors from '../../lib/errors';
+import { logger } from '../../lib/logger';
 
 export function taskById(req, rex, next, id) {
     return Task.findById(id).then((task) => {
@@ -12,6 +14,7 @@ export function taskById(req, rex, next, id) {
             return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));
         }
     }).catch((err) => {
+        logger.error(`TaskCtrl::taskById() error`, err);
         res.status(500).send(err.toString());
     });
 }
@@ -88,6 +91,7 @@ export function update(req, res) {
     }).then((updatedTask) => {
         return res.status(200).json(updatedTask.toJSON());
     }).catch((err) => {
+        logger.error(`TaskCtrl::update() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -96,6 +100,7 @@ export function remove(req, res) {
     return req.task.remove().then(() => {
         return res.status(200).end();
     }).catch((err) => {
+        logger.error(`TaskCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -106,11 +111,11 @@ export function create(req, res) {
     let namePromise = Promise.resolve();
     if (name !== undefined && name != null && name != '') {
         namePromise = Task.find({ name }).then((existedTask) => {
-            if (!existedTask) {
+            if (existedTask.length === 0) {
                 return Promise.resolve();
             }
 
-            return Promise.reject(new Error(JSON.stringify(TASK_NAME_EXISTED)));
+            return Promise.reject(new Error(JSON.stringify(errors.TASK_NAME_EXISTED)));
         });
     }
 
@@ -150,6 +155,7 @@ export function create(req, res) {
     }).then((task) => {
         return res.status(200).json(task);
     }).catch((err) => {
+        logger.error(`TaskCtrl::create() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -162,16 +168,10 @@ export function list(req, res) {
     );
 
     const { name, input, output, type, running } = req.query;
-
+    const query = _.pickBy({ name, input, output, type, running }, _.identity);
     // TODO : check param
 
-    return Task.find({
-        name,
-        input,
-        output,
-        type,
-        running
-    })
+    return Task.find(query)
     .sort({ ts: -1 })
     .limit(pageSize)
     .skip(page * pageSize)
@@ -179,6 +179,7 @@ export function list(req, res) {
         return res.status(200).json(tasks);
     })
     .catch((err) => {
+        logger.error(`TaskCtrl::list() error`, err);
         return res.status(500).send(err.toSTring());
     });
 }

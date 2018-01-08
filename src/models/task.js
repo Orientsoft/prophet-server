@@ -2,14 +2,13 @@ import mongoose from 'mongoose';
 
 const taskSchema = new mongoose.Schema({
     name: String,
-    input: ObjectId,
-    output: ObjectId,
+    input: mongoose.Schema.ObjectId,
+    output: mongoose.Schema.ObjectId,
     script: String,
     params: Array,
     type: Number,
     cron: String,
-    ts: { type: Date, default: Date.now },
-    running: Boolean
-});
+    running: { type: Boolean, default: false }
+}, { timestamps: true });
 
 export default mongoose.model('Task', taskSchema);

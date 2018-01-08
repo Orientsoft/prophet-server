@@ -9,6 +9,7 @@ router.route('/tasks')
     .post(TaskCtrl.create);
 
 router.route('/tasks/:taskId')
+    .get(TaskCtrl.read)
     .put(TaskCtrl.update)
     .delete(TaskCtrl.remove);
 router.param('taskId', TaskCtrl.taskById);

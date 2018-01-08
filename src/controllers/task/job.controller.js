@@ -1,8 +1,9 @@
 import Promise from 'bluebird';
 import { Task, Port } from '../../models';
-import { connection, start, stop } from '../../services/pm2';
+import * as pmService from '../../services/pm2';
 import * as CONSTS from '../../consts';
 import { errors } from '../../lib/errors';
+import { logger } from '../../lib/logger';
 
 export function jobById(req, res, next, id) {
     Task.findById(id).then((task) => {
@@ -13,6 +14,7 @@ export function jobById(req, res, next, id) {
 
         return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));
     }).catch((err) => {
+        logger.error(`TaskCtrl::jobById() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -20,12 +22,13 @@ export function jobById(req, res, next, id) {
 export function stop(req, res) {
     const { task } = req;
 
-    return stop(task.name).then(() => {
+    return pmService.stop(task.name).then(() => {
         task.set({ running: false });
         task.save();
 
         return res.status(200).end();
     }).catch((err) => {
+        logger.error(`TaskCtrl::stop() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -59,13 +62,14 @@ export function start(req, res) {
             task.params.push(`--output-name ${outputPort.name}`);
         }
 
-        return start(task.name, task.script, task.cron, task.params);
+        return pmService.start(task.name, task.script, task.cron, task.params);
     }).then((proc) => {
         task.set({ running: true });
         task.save();
 
         return res.status(200).json(proc);
     }).catch((err) => {
+        logger.error(`TaskCtrl::start() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -83,7 +87,7 @@ export function ps(req, res) {
     .sort({ ts: -1 })
     .then((tasks) => {
         return Promise.map(tasks, (task) => {
-            return describe(task.name);
+            return pmService.describe(task.name);
         });
     }).then((procs) => {
         procs = procs.filter((proc) => {
@@ -95,6 +99,7 @@ export function ps(req, res) {
         return res.status(200).json(procs);
     })
     .catch((err) => {
+        logger.error(`TaskCtrl::ps() error`, err);
         return res.status(500).send(err.toSTring());
     });
 }

@@ -3,11 +3,10 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
-import * as mongodb from './lib/mongodb';
-import * as redis from './lib/redis';
-import * as pm2 from './lib/pm2';
+import * as mongoose from './lib/mongoose';
+// import * as redis from './lib/redis';
 import { httpLogger } from './lib/logger';
-import ssr from './lib/ssr';
+// import ssr from './lib/ssr';
 import routers from './routers';
 import config from './config';
 
@@ -15,15 +14,13 @@ const app = express();
 const RedisStore = require('connect-redis')(session);
 
 // MongoDB Connection
-mongodb.connect();
+mongoose.connect();
 
 // Redis Connection
-redis.connect();
-
-// PM2 Connection
-pm2.connect();
+// redis.connect();
 
 // Express MongoDB session storage
+/*
 app.use(session({
     saveUninitialized: true,
     resave: true,
@@ -34,9 +31,10 @@ app.use(session({
     cookie: config.sessionCookie,
     name: config.sessionName,
 }));
+*/
 
 // mount passport middleware
-passportRegister(app);
+// passportRegister(app);
 
 app.use(httpLogger);
 app.use(bodyParser.json());
@@ -45,7 +43,7 @@ app.use(cookieParser());
 
 app.use(`/api/${config.apiVersion}`, routers);
 
-app.use(/^\/(?!static).*/, ssr);
+// app.use(/^\/(?!static).*/, ssr);
 
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, 'public')));

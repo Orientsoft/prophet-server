@@ -1,7 +1,9 @@
+import _ from 'lodash';
 import Promise from 'bluebird';
 import { Flow } from '../../models';
 import * as CONSTS from '../../consts';
-import { errors } from '../../lib/errors';
+import errors from '../../lib/errors';
+import { logger } from '../../lib/logger';
 
 export function flowById(req, rex, next, id) {
     return Flow.findById(id).then((flow) => {
@@ -12,6 +14,7 @@ export function flowById(req, rex, next, id) {
             return res.status(400).send(JSON.stringify(errors.FLOW_NOT_FOUND));
         }
     }).catch((err) => {
+        logger.error(`FlowCtrl::flowById() error`, err);
         res.status(500).send(err.toString());
     });
 }
@@ -22,7 +25,7 @@ export function read(req, res) {
 
 export function update(req, res) {
     const { flow, body } = req;
-    const { name } = body;
+    const { name, tasks } = body;
 
     let namePromise = Promise.resolve();
     if (name !== undefined && name != null && name != '') {
@@ -37,18 +40,24 @@ export function update(req, res) {
     }
 
     return namePromise.then(() => {
-        return port.save();
-    }).then((updatedPort) => {
-        return res.status(200).json(updatedPort.toJSON());
+        if (tasks !== undefined && tasks != null) {
+            flow.set({ tasks });
+        }
+
+        return flow.save();
+    }).then((updatedFlow) => {
+        return res.status(200).json(updatedFlow.toJSON());
     }).catch((err) => {
+        logger.error(`FlowCtrl::update() error`, err);
         return res.status(500).send(err.toString());
-    });;
+    });
 }
 
 export function remove(req, res) {
     return req.flow.remove().then(() => {
         return res.status(200).end();
     }).catch((err) => {
+        logger.error(`FlowCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -57,18 +66,19 @@ export function create(req, res) {
     return Flow.find({
         name: req.body.name
     }).then((existedFlow) => {
-        if (!existedFlow) {
+        if (existedFlow.length === 0) {
             return Flow.create({
                 name: req.body.name,
                 tasks: req.body.tasks || []
             });
-        } else {
-            return Promise.reject(errors.FLOW_NAME_EXISTED);
         }
+
+        return Promise.reject(JSON.stringify(errors.FLOW_NAME_EXISTED));
     })
     .then((flow) => {
         return res.status(200).json(flow);
     }).catch((err) => {
+        logger.error(`FlowCtrl::create() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -81,11 +91,10 @@ export function list(req, res) {
     );
 
     const { name } = req.query;
+    const query = _.pickBy({ name }, _.identity);
     // TODO : check param
 
-    return Status.find({
-        name
-    })
+    return Flow.find(query)
     .sort({ ts: -1 })
     .limit(pageSize)
     .skip(page * pageSize)
@@ -93,6 +102,7 @@ export function list(req, res) {
         return res.status(200).json(flows);
     })
     .catch((err) => {
+        logger.error(`FlowCtrl::list() error`, err);
         return res.status(500).send(err.toSTring());
     });
 }

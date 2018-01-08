@@ -1,5 +1,7 @@
+import _ from 'lodash';
 import { Status } from '../../models';
 import * as CONSTS from '../../consts';
+import { logger } from '../../lib/logger';
 
 export function create(req, res) {
     return Status.create({
@@ -10,6 +12,7 @@ export function create(req, res) {
     }).then((status) => {
         return res.status(200).json(status.toJSON());
     }).catch((err) => {
+        logger.error(`StatusCtrl::create() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -22,20 +25,19 @@ export function list(req, res) {
     );
 
     const { source, code, level } = req.query;
+    const query = _.pickBy({ source, code, level }, _.identity);
     // TODO : check param
 
-    return Status.find({
-        source,
-        code,
-        level
-    })
+    return Status.find(query)
     .sort({ ts: -1 })
     .limit(pageSize)
     .skip(page * pageSize)
     .then((statusList) => {
-        return res.status(200).json(statusList.map((status) => { return status.toJSON(); }));
+        console.log(statusList)
+        return res.status(200).json(statusList);
     })
     .catch((err) => {
-        return res.status(500).send(err.toSTring());
+        logger.error(`StatusCtrl::list() error`, err);
+        return res.status(500).send(err.toString());
     });
 }

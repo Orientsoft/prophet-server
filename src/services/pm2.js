@@ -13,6 +13,16 @@ const connect = () => {
     });
 }
 
+const register = (name, path, cron, params) => {
+    return connect.then((pm2) => {
+        return start(name, path, cron, params);
+    }).then((proc) => {
+        return pause(name);
+    }).finally(() => {
+        pm2.disconnect();
+    });
+}
+
 const start = (name, path, cron, params) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
@@ -32,6 +42,22 @@ const start = (name, path, cron, params) => {
 const stop = (name) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
+            pm2.delete(name, (err, proc) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(proc);
+            });
+        });
+    }).finally(() => {
+        pm2.disconnect();
+    });
+}
+
+const pause = (name) => {
+    return connect.then((pm2) => {
+        return new Promise((resolve, reject) => {
             pm2.stop(name, (err, proc) => {
                 if (err) {
                     reject(err);
@@ -42,7 +68,23 @@ const stop = (name) => {
         });
     }).finally(() => {
         pm2.disconnect();
-    });;
+    });
+}
+
+const resume = (name) => {
+    return connect.then((pm2) => {
+        return new Promise((resolve, reject) => {
+            pm2.restart(name, (err, proc) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(proc);
+            });
+        });
+    }).finally(() => {
+        pm2.disconnect();
+    });
 }
 
 const list = () => {
@@ -58,7 +100,7 @@ const list = () => {
         });
     }).finally(() => {
         pm2.disconnect();
-    });;
+    });
 }
 
 const describe = (name) => {
@@ -74,7 +116,7 @@ const describe = (name) => {
         });
     }).finally(() => {
         pm2.disconnect();
-    });;
+    });
 }
 
 export default { connect, start, stop, list, describe };
