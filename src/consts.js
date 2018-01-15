@@ -4,7 +4,7 @@ export const TASK_TYPE = {
 };
 
 export const PORT_TYPE = {
-    REDIS_PUBSUB: 0,
+    REDIS_CHANNEL: 0,
     NSQ_QUEUE: 1,
     MONGODB_COLLECTION: 2,
     ES_INDEX: 3

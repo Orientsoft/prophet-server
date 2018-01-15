@@ -5,7 +5,7 @@ import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
 
-export function flowById(req, rex, next, id) {
+export function flowById(req, res, next, id) {
     return Flow.findById(id).then((flow) => {
         if (flow) {
             req.flow = flow;
