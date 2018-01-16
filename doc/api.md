@@ -4,6 +4,7 @@
 
 如无特别说明，所有List方法均支持page，pageSize的query参数。page的起始值为0，pageSize默认为20，最大为100。  
 对于ObjectId类型，HTTP是转换成String类型发送的，前端可以无需处理，直接作为字符串使用。后端收到之后会自动按需转换成ObjectId。  
+对于不返回内容的请求，用HTTP状态码判断成败。  
 
 ---  
 
@@ -93,7 +94,7 @@ data字段用于绑定附加数据如KPI、告警等，包含数据类型和数�
 export const DATA_TYPES = {
     KPI: 0,
     ALERT: 1
-}
+};
 ```
 
 structureInRequest:
@@ -175,7 +176,7 @@ export const ALERT_LEVELS = {
     NORMAL: 0,
     WARNING: 1,
     ERROR: 2
-}
+};
 ```
 
 alertInResponse:  
@@ -234,7 +235,7 @@ export const PORT_TYPES = {
     NSQ_QUEUE: 1,
     MONGODB_COLLECTION: 2,
     ES_INDEX: 3
-}
+};
 ```
 
 portInRequest:  
@@ -287,7 +288,7 @@ export const JOB_STATUS_TYPES = {
     launching: 3,
     errored: 4,
     one-launch-status: 5
-}
+};
 ```
 
 taskInRequest:  
@@ -364,6 +365,60 @@ testInResponse:
 | GET | /tests/:taskId | | | testInResponse | 测试定义好的任务 |
 
 ---  
+## 触发器（trigger）  
+
+为了实现流程控制，引入触发器，用于在流程中某些任务开始前或结束后，自动对指定的任务进行启停控制。  
+触发器类型定义：  
+```
+export const TRIGGER_TYPES = {
+    PRE: 0,
+    POST: 1
+};
+```
+
+触发器动作定义：  
+```
+export const TRIGGER_ACTIONS = {
+    START: 0,
+    STOP: 1,
+    RESTART 2
+}
+```
+
+triggerInRequest:  
+```
+{
+    name: String,
+    type: Number,
+    task: ObjectId,
+    action: Number,
+    target: ObjectId
+}
+```
+
+triggerInResponse:  
+```
+{
+    id: ObjectId,
+    name: String,
+    type: Number,
+    task: ObjectId,
+    action: Number,
+    target: ObjectId,
+    createdAt: Date,
+    updatedAt: Date
+}
+```
+
+| method | path | query | request | response | remark |
+| ------ | ---- | ----- | ------- | -------- | ------ |
+| GET | /triggers | name, type, task, action, target | | [ triggerInResponse ] | 触发器列表 |
+| POST | /triggers | | triggerInRequest | triggerInResponse | 创建触发器 |
+| GET | /triggers/:triggerId | | | triggerInResponse | 获取指定触发器 |
+| PUT | /triggers/:triggerId | | triggerInRequest | triggerInResponse | 更改指定触发器 |
+| DELETE | /triggers/:triggerId | | | | 删除指定触发器 |
+
+---  
 ## 流程（flow）  
 
 AI执行流程的定义和控制。  
@@ -373,7 +428,8 @@ flowInRequest:
 ```
 {
     name: String,
-    tasks: [ ObjectId ]
+    tasks: [ ObjectId ],
+    triggers: [ ObjectId ]
 }
 ```
 
@@ -383,6 +439,7 @@ flowInResponse:
     id: ObjectId,
     name: String,
     tasks: [ ObjectId ],
+    triggers: [ ObjectId ],
     createAt: Date,
     updatedAt: Date
 }
