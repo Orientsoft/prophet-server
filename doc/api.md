@@ -9,16 +9,25 @@
 
 ## 用户（user）  
 
+简单的用户管理功能，主要用于控制不同用户可以看到的界面。  
+原则上不开放用户注册。  
+添加用户时使用PBKDF2算法生成密码，推荐使用crypto-js库以保证前后台加密操作一致性，注意传输时要使用BASE64编码：  
+```
+var salt = CryptoJS.lib.WordArray.random(128/8);
+var key256Bits = CryptoJS.PBKDF2("Secret Passphrase", salt, { keySize: 256/32, iterations: 1000 });
+```
 
-*TODO: 用户认证和权限还需要设计。*  
+用户权限由access字段控制。该字段定义了一颗权限树，第一层节点为应用（Application），应用节点内部层级关系与系统结构的“元树”基本上一一对应，从而实现任意层级的显示控制。  
+权限树第一级有一个特殊的应用`admin`，用于指定用户是否可以看到管理界面。  
+后台提供API来获取初始权限树。  
 
 userInRequest:  
 ```
 {
     name: String,
     key: String,
-    salt: String,
-    access: String
+    salt: String
+    access: {}
 }
 ```
 
@@ -27,10 +36,41 @@ userInResponse:
 {
     id: ObjectId,
     name: String,
-    access: String,
+    access: {},
     createdAt: Date,
     updatedAt: Date
 }
+```
+
+accessInResponse:  
+```
+[
+    {
+        visible: Boolean,
+        name: String,
+        level: 0,
+        categories: [
+            {
+                visible: Boolean,
+                name: String,
+                level: 1,
+                technology: [
+                    {
+                        visible: Boolean,
+                        name: String,
+                        level: 2
+                    }
+                ]
+            }
+        ]
+    },
+    ...,
+    {
+        visible: Boolean,
+        name: 'admin',
+        level: 0
+    }
+]
 ```
 
 | method | path | query | request | response | remark |
@@ -40,6 +80,7 @@ userInResponse:
 | GET | /users/:userId | | | userInResponse | 获取指定用户 |
 | PUT | /users/:userId | | userInRequest | userInResponse | 更改指定用户 |
 | DELETE | /users/:userId | | | | 删除指定用户 |
+| GET | /meta-access | | | accessInResponse | 获取初始权限树 |
 
 ---  
 
@@ -117,12 +158,41 @@ structureInResponse:
 *TBF*  
 
 ---  
-## 告警（Alert）  
+## 告警（alert）  
 
-*TBF*  
+归一化的告警严重度评分和分级，可以附加算法自定义信息。  
+告警的执行以脚本方式实现，并集成在AI部分，作为Flow执行。**告警的结果保存在ES Index中，不由后台管理，这里仅定义告警相关数据结构。**  
+严重度评分的范围是0-100，由算法执行归一化；告警级别的阀值为：  
+```
+0 : NORMAL
+(0 - 50] : WARNING
+(50 - 100] : ERROR 
+```
+
+告警级别定义：  
+```
+export const ALERT_LEVELS = {
+    NORMAL: 0,
+    WARNING: 1,
+    ERROR: 2
+}
+```
+
+alertInResponse:  
+```
+{
+    name: String,
+    serverity: Number,
+    level: Number,
+    timespan: Number, // in ms
+    info: {},
+    createdAt: Date,
+    updatedAt: Date
+}
+```
 
 ---  
-## 主机（Host）  
+## 主机（host）  
 
 主机可以是Container。  
 
@@ -154,7 +224,7 @@ hostInResponse:
 | DELETE | /hosts/:hostId | | | | 删除指定主机 |
 
 ---  
-## IO端口（Port）  
+## IO端口（port）  
 
 AI Task使用的输入输出端口。  
 端口类型定义（根据需求可以增加）：  
@@ -195,9 +265,11 @@ portInResponse:
 | DELETE | /ports/:portId | | | | 删除指定端口 |
 
 ---  
-## 任务（Task）  
+## 任务（task）  
 
 AI Task定义和执行进程管理，任务是AI系统的核心。  
+Task是静态的任务定义，Job是实际任务执行的进程。  
+用户创建Task之后，可以直接测试，系统会短时间启停Task测试脚本是否可以正常执行。  
 任务类型定义：  
 ```
 export const TASK_TYPES = {
@@ -251,14 +323,13 @@ taskInResponse:
 jobInRequest:  
 ```
 {
-    taskId: ObjectId
+    taskId: [ ObjectId ] // 可以一次性发送整个Flow的taskId
 }
 ```
 
 jobInResponse: 
 ```
 {
-    jobId: String,
     taskId: ObjectId,
     status: {
         uptime: Number,
@@ -286,16 +357,17 @@ testInResponse:
 | PUT | /tasks/:taskId | | taskInRequest | taskInResponse | 更改指定任务 |
 | DELETE | /tasks/:taskId | | | | 删除指定任务 |
 | GET | /jobs | taskId, name, input, output, type, running | | [ jobInResponse ] | 进程列表 |
-| POST | /jobs | | jobInRequest | jobInResponse | 启动任务 |
-| GET | /jobs/:jobId | | | jobInResponse | 获取指定进程详情 |
-| DELETE | /jobs/:jobId | | | | 停止任务 |
+| POST | /jobs | | jobInRequest | [ jobInResponse ] | 启动任务（组） |
+| DELETE | /jobs | jobInRequest | | | 停止任务（组） |
+| GET | /jobs/:taskId | | | jobInResponse | 获取指定进程详情 |
+| DELETE | /jobs/:taskId | | | | 停止指定任务 |
 | GET | /tests/:taskId | | | testInResponse | 测试定义好的任务 |
 
 ---  
-## 流程（Flow）  
+## 流程（flow）  
 
 AI执行流程的定义和控制。  
-虽然从用户角度，任务的启停是由流程统一控制的，但是API实现上流程本身并不能启停，前端需要调用Task API进行任务控制。  
+在Task中已经可以实现整个Flow的操作，所以Flow就不再提供启停接口，直接调用Task相关接口即可。  
 
 flowInRequest:  
 ```
@@ -325,7 +397,7 @@ flowInResponse:
 | DELETE | /flows/:flowId | | | | 删除指定流程 |
 
 ---  
-## 历史状态（Status）  
+## 历史状态（status）  
 
 用于记录AI任务的历史状态。  
 状态代码另开文档记录。  
