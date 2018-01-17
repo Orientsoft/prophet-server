@@ -7,7 +7,6 @@
 对于不返回内容的请求，用HTTP状态码判断成败。  
 
 ---  
-
 ## 用户（user）  
 
 简单的用户管理功能，主要用于控制不同用户可以看到的界面。  
@@ -84,7 +83,6 @@ accessInResponse:
 | GET | /meta-access | | | accessInResponse | 获取初始权限树 |
 
 ---  
-
 ## 系统结构（structure）   
 
 系统结构作为整体操作，直接存入MongoDB。  
@@ -109,10 +107,12 @@ structureInRequest:
             level: 1,
             data: [ { type: Number, id: ObjectId } ],
             technology: [
-                name: String,
-                level: 2,
-                data: [ { type: Number, id: ObjectId } ],
-                hosts: [ ObjectId ]
+                {
+                    name: String,
+                    level: 2,
+                    data: [ { type: Number, id: ObjectId } ],
+                    hosts: [ ObjectId ]
+                }
             ]
         }
     ]
@@ -132,10 +132,12 @@ structureInResponse:
             level: 1,
             data: [ { type: Number, id: ObjectId } ],
             technology: [
-                name: String,
-                level: 2,
-                data: [ { type: Number, id: ObjectId } ],
-                hosts: [ ObjectId ]
+                {
+                    name: String,
+                    level: 2,
+                    data: [ { type: Number, id: ObjectId } ],
+                    hosts: [ ObjectId ]
+                }
             ]
         }
     ],
