@@ -1,29 +1,31 @@
-# API设计  
+# API设计
 
-## 说明  
+## 说明
 
 如无特别说明，所有List方法均支持page，pageSize的query参数。page的起始值为0，pageSize默认为20，最大为100。  
 对于ObjectId类型，HTTP是转换成String类型发送的，前端可以无需处理，直接作为字符串使用。后端收到之后会自动按需转换成ObjectId。  
-对于不返回内容的请求，用HTTP状态码判断成败。  
+对于不返回内容的请求，用HTTP状态码判断成败。
 
----  
+---
 
-## 用户（user）  
+## 用户（user）
 
 简单的用户管理功能，主要用于控制不同用户可以看到的界面。  
 原则上不开放用户注册。  
-添加用户时使用PBKDF2算法生成密码，推荐使用crypto-js库以保证前后台加密操作一致性，注意传输时要使用BASE64编码：  
-```
+添加用户时使用PBKDF2算法生成密码，推荐使用crypto-js库以保证前后台加密操作一致性，注意传输时要使用BASE64编码：
+
+```js
 var salt = CryptoJS.lib.WordArray.random(128/8);
 var key256Bits = CryptoJS.PBKDF2("Secret Passphrase", salt, { keySize: 256/32, iterations: 1000 });
 ```
 
 用户权限由access字段控制。该字段定义了一颗权限树，第一层节点为应用（Application），应用节点内部层级关系与系统结构的“元树”基本上一一对应，从而实现任意层级的显示控制。  
-权限树第一级有一个特殊的应用`admin`，用于指定用户是否可以看到管理界面。  
-后台提供API来获取初始权限树。  
+权限树第一级有一个特殊的应用`admin`，用于指定用户是否可以看到管理界面。
+后台提供API来获取初始权限树。
 
-userInRequest:  
-```
+userInRequest:
+
+```js
 {
     name: String,
     key: String,
@@ -33,7 +35,8 @@ userInRequest:
 ```
 
 userInResponse:
-```
+
+```js
 {
     id: ObjectId,
     name: String,
@@ -43,8 +46,9 @@ userInResponse:
 }
 ```
 
-accessInResponse:  
-```
+accessInResponse:
+
+```js
 [
     {
         visible: Boolean,
@@ -89,29 +93,32 @@ accessInResponse:
 
 系统结构作为整体操作，直接存入MongoDB。  
 data字段用于绑定附加数据如KPI、告警等，包含数据类型和数据元信息在MongoDB中的ObjectID。  
-数据类型type的取值（可以根据需求增加）：  
-```
+数据类型type的取值（可以根据需求增加）：
+
+```js
 export const DATA_TYPES = {
-    KPI: 0,
-    ALERT: 1
+    DataSource: 0,
+    KPI: 1,
+    ALERT: 2
 };
 ```
 
 structureInRequest:
-```
+
+```js
 {
     name: String,
     level: 0,
-    data: [ { type: Number, id: ObjectId } ],
+    data: [],
     categories: [
         {
             name: String,
             level: 1,
-            data: [ { type: Number, id: ObjectId } ],
+            data: [],
             technology: [
                 name: String,
                 level: 2,
-                data: [ { type: Number, id: ObjectId } ],
+                data: [],
                 hosts: [ ObjectId ]
             ]
         }
@@ -120,27 +127,160 @@ structureInRequest:
 ```
 
 structureInResponse:
-```
+
+```js
 {
     id: ObjectId,
     name: String,
     level: 0,
-    data: [ { type: Number, id: ObjectId } ],
+    data: [],
     categories: [
         {
             name: String,
             level: 1,
-            data: [ { type: Number, id: ObjectId } ],
+            data: [],
             technology: [
                 name: String,
                 level: 2,
-                data: [ { type: Number, id: ObjectId } ],
+                data: [],
                 hosts: [ ObjectId ]
             ]
         }
     ],
     createdAt: Date,
     updatedAt: Date
+}
+```
+
+Sample 数据
+
+```js
+{
+    name: "银行核心系统",
+    level: 0,
+    data: [],
+    categories: [
+        {
+            name: "应用系统",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "业务日志",
+                    level: 2,
+                    hosts: []
+                }
+            ]
+        }，        {
+            name: "负载均衡器",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "Nginx",
+                    level: 2,
+                    hosts: []
+                },
+                {
+                    name: "Apache",
+                    level: 2,
+                    hosts: []
+                }
+            ]
+        }，
+        {
+            name: "中间件",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "Tuxedo",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "WebLogic",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "JBOSS",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "Tomcat",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                }
+
+            ]
+        },
+        {
+            name: "数据库",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "Oracle",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "MySQL",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                }
+
+            ]
+        },
+        {
+            name: "操作系统",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "AIX",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "Linux",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                }
+
+            ]
+        },
+        {
+            name: "网络",
+            level: 1,
+            data: [],
+            technology: [
+                {
+                    name: "NPM",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                },
+                {
+                    name: "SNMP",
+                    level: 2,
+                    data: [],
+                    hosts: []
+                }
+
+            ]
+        }
+    ],
 }
 ```
 
@@ -170,8 +310,9 @@ structureInResponse:
 (50 - 100] : ERROR 
 ```
 
-告警级别定义：  
-```
+告警级别定义：
+
+```js
 export const ALERT_LEVELS = {
     NORMAL: 0,
     WARNING: 1,
@@ -179,8 +320,9 @@ export const ALERT_LEVELS = {
 };
 ```
 
-alertInResponse:  
-```
+alertInResponse:
+
+```js
 {
     name: String,
     serverity: Number,
@@ -193,12 +335,14 @@ alertInResponse:
 ```
 
 ---  
-## 主机（host）  
 
-主机可以是Container。  
+## 主机（host）
+
+主机可以是Container。
 
 hostInRequest:
-```
+
+```js
 {
     hostname: String,
     ip: String
@@ -206,7 +350,8 @@ hostInRequest:
 ```
 
 hostInResponse:
-```
+
+```js
 {
     id: ObjectId,
     hostname: String,
