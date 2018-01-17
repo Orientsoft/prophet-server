@@ -152,7 +152,7 @@ structureInResponse:
 }
 ```
 
-Sample 数据
+Sample Structure
 
 ```js
 {
