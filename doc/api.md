@@ -173,7 +173,8 @@ Sample Structure
                     hosts: []
                 }
             ]
-        }，        {
+        },
+        {
             name: "负载均衡器",
             level: 1,
             data: [],
@@ -189,7 +190,7 @@ Sample Structure
                     hosts: []
                 }
             ]
-        }，
+        },
         {
             name: "中间件",
             level: 1,
@@ -296,15 +297,53 @@ Sample Structure
 | GET | /meta-structure | | | structureInResponse | 获取“元树” |
 
 ---  
-## 指标（KPI）  
+## 数据（data）  
 
-*TBF*  
+为前端提供的对象存储服务，可以存储任意的数据。  
+对象的结构可以由前端设计实现，但是需要包含以下字段：  
+
+```js
+{
+    type: String, // 表示该对象类型
+    structure: [ ObjectId ] // 该对象所在的结构ID列表
+}
+```
+
+dataInRequest:  
+
+```js
+{
+    type: String,
+    structure: [ ObjectId ],
+    ...other_data_fileds
+}
+```
+
+对象保存后，会添加一个`_id`字段，但是不会自动添加时间戳。   
+dataInResponse:  
+
+```js
+{
+    _id: ObjectId,
+    type: String,
+    structure: [ ObjectId ],
+    ...other_data_fileds
+}
+```
+
+| method | path | query | request | response | remark |
+| ------ | ---- | ----- | ------- | -------- | ------ |
+| GET | /data | type, structure | | [ dataInResponse ] | 数据列表 |
+| POST | /data | | dataInRequest | dataInResponse | 创建数据 |
+| GET | /data/:dataId | | | dataInResponse | 获取指定数据 |
+| PUT | /data/:dataId | | dataInRequest | dataInResponse | 更改指定数据 |
+| DELETE | /data/:dataId | | | | 删除指定数据 |
 
 ---  
 ## 告警（alert）  
 
 归一化的告警严重度评分和分级，可以附加算法自定义信息。  
-告警的执行以脚本方式实现，并集成在AI部分，作为Flow执行。**告警的结果保存在ES Index中，不由后台管理，这里仅定义告警相关数据结构。**  
+告警的执行以脚本方式实现，并集成在AI部分，作为Flow执行。**告警的数据保存在ES Index中，后台只保存告警元数据。** 告警可以挂在结构的节点上。  
 严重度评分的范围是0-100，由算法执行归一化；告警级别的阀值为：  
 ```
 0 : NORMAL
@@ -322,7 +361,7 @@ export const ALERT_LEVELS = {
 };
 ```
 
-alertInResponse:
+alertIn**ES**:
 
 ```js
 {
@@ -330,11 +369,43 @@ alertInResponse:
     serverity: Number,
     level: Number,
     timespan: Number, // in ms
-    info: {},
+    info: {}, // 告警算法的自定义数据
     createdAt: Date,
     updatedAt: Date
 }
 ```
+
+alertInRequest:  
+
+```js
+{
+    structure: [ ObjectId ], // 与该告警关联的结构ID列表
+    esIndex: String
+}
+```
+
+后台会自动维持每个节点的告警计算，前端可以直接根据告警ID请求数据。  
+
+alertInResponse:  
+
+```js
+{
+    _id: ObjectId,
+    structure: [ ObjectId ],
+    esIndex: String,
+    value: alertInES, // 经过聚合的告警信息，结构与ES里面相同
+    createdAt: Date,
+    updatedAt: Date
+}
+```
+
+| method | path | query | request | response | remark |
+| ------ | ---- | ----- | ------- | -------- | ------ |
+| GET | /alerts | structure | | [ alertInResponse ] | 告警列表 |
+| POST | /alerts | | alertInRequest | alertInResponse | 创建告警 |
+| GET | /alerts/:alertId | | | alertInResponse | 获取指定告警 |
+| PUT | /alerts/:alertId | | alertInRequest | alertInResponse | 更改指定告警 |
+| DELETE | /alert/:alertId | | | | 删除指定告警 |
 
 ---  
 
@@ -376,7 +447,8 @@ hostInResponse:
 
 AI Task使用的输入输出端口。  
 端口类型定义（根据需求可以增加）：  
-```
+
+```js
 export const PORT_TYPES = {
     REDIS_CHANNEL: 0,
     NSQ_QUEUE: 1,
@@ -386,7 +458,8 @@ export const PORT_TYPES = {
 ```
 
 portInRequest:  
-```
+
+```js
 {
     name: String,
     type: Number
@@ -394,7 +467,8 @@ portInRequest:
 ```
 
 portInResponse:  
-```
+
+```js
 {
     id: ObjectId,
     name: String,
@@ -419,7 +493,8 @@ AI Task定义和执行进程管理，任务是AI系统的核心。
 Task是静态的任务定义，Job是实际任务执行的进程。  
 用户创建Task之后，可以直接测试，系统会短时间启停Task测试脚本是否可以正常执行。  
 任务类型定义：  
-```
+
+```js
 export const TASK_TYPES = {
     NORMAL: 0,
     CRON: 1
@@ -427,7 +502,8 @@ export const TASK_TYPES = {
 ```
 
 进程状态定义：  
-```
+
+```js
 export const JOB_STATUS_TYPES = {
     online: 0,
     stopping: 1,
@@ -439,7 +515,8 @@ export const JOB_STATUS_TYPES = {
 ```
 
 taskInRequest:  
-```
+
+```js
 {
     name: String,
     input: ObjectId,
@@ -453,7 +530,8 @@ taskInRequest:
 ```
 
 taskInResponse:  
-```
+
+```js
 {
     name: String,
     input: ObjectId,
@@ -469,14 +547,16 @@ taskInResponse:
 ```
 
 jobInRequest:  
-```
+
+```js
 {
     taskId: [ ObjectId ] // 可以一次性发送整个Flow的taskId
 }
 ```
 
 jobInResponse: 
-```
+
+```js
 {
     taskId: ObjectId,
     status: {
@@ -490,7 +570,8 @@ jobInResponse:
 ``` 
 
 testInResponse:
-```
+
+```js
 {
     taskId: ObjectId,
     result: { status: 'OK' / 'Error', error }
@@ -516,7 +597,8 @@ testInResponse:
 
 为了实现流程控制，引入触发器，用于在流程中某些任务开始前或结束后，自动对指定的任务进行启停控制。  
 触发器类型定义：  
-```
+
+```js
 export const TRIGGER_TYPES = {
     PRE: 0,
     POST: 1
@@ -524,7 +606,8 @@ export const TRIGGER_TYPES = {
 ```
 
 触发器动作定义：  
-```
+
+```js
 export const TRIGGER_ACTIONS = {
     START: 0,
     STOP: 1,
@@ -533,7 +616,8 @@ export const TRIGGER_ACTIONS = {
 ```
 
 triggerInRequest:  
-```
+
+```js
 {
     name: String,
     type: Number,
@@ -544,7 +628,8 @@ triggerInRequest:
 ```
 
 triggerInResponse:  
-```
+
+```js
 {
     id: ObjectId,
     name: String,
@@ -572,7 +657,8 @@ AI执行流程的定义和控制。
 在Task中已经可以实现整个Flow的操作，所以Flow就不再提供启停接口，直接调用Task相关接口即可。  
 
 flowInRequest:  
-```
+
+```js
 {
     name: String,
     tasks: [ ObjectId ],
@@ -581,7 +667,8 @@ flowInRequest:
 ```
 
 flowInResponse:  
-```
+
+```js
 {
     id: ObjectId,
     name: String,
@@ -606,7 +693,8 @@ flowInResponse:
 用于记录AI任务的历史状态。  
 状态代码另开文档记录。  
 状态级别定义：  
-```
+
+```js
 export const STATUS_LEVEL = {
     DEBUG: 0,
     LOG: 1,
@@ -616,7 +704,8 @@ export const STATUS_LEVEL = {
 ```
 
 statusInRequest:  
-```
+
+```js
 {
     source: ObjectId,
     code: Number,
@@ -626,7 +715,8 @@ statusInRequest:
 ```
 
 statusInResponse:
-```
+
+```js
 {
     id: ObjectId,
     source: ObjectId,
