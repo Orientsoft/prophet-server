@@ -42,3 +42,29 @@ function extractErrorInfo(err, model) {
         paths: _.map(err.errors, error => error.path),
     };
 }
+
+export function getPageOption(req) {
+    const page = Number(req.query.page) || 0;
+    const skip = Number(req.query.skip) || 0;
+    const pageSize = Math.max(CONSTS.MIN_PAGE_SIZE,
+        Math.min(CONSTS.MAX_PAGE_SIZE,
+            Number(req.query.pageSize) || CONSTS.DEFAULT_PAGE_SIZE
+        )
+    );
+    return {
+        page,
+        pageSize,
+        skip,
+        offset: skip + (page * pageSize),
+        limit: pageSize,
+    };
+}
+
+export function getPageMetadata(pageOption, count) {
+    const { page, pageSize, skip } = pageOption;
+    const remainingCount = count - skip;
+    const pageCount = Math.ceil(remainingCount / pageSize);
+    return {
+        page, pageSize, pageCount, totalCount: remainingCount
+    };
+}

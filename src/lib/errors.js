@@ -28,6 +28,8 @@ const errors = {
 
     FLOW_NOT_FOUND: { code: 50100, message: '找不到流程' },
     FLOW_NAME_EXISTED: { code: 50200, message: '流程名称已经被占用' },
+
+    TRIGGER_NOT_FOUND: { code: 60100, message: '找不到触发器' },
 };
 
 export default errors;
