@@ -40,10 +40,20 @@ tbf
 ```
 
 ---  
-## 外部引用  
+## 文件组织与命名规则  
 
-对于非全局安装的外部引用，可以创建脚本同名的子目录进行保存。  
+算法以目录形式存在，目录的命名以`algorithm-data-type`的形式，比如`lstm-tploader-prophet`。  
+算法的主入口脚本的命名以`algorithm-data-type.ext`的形式，比如`lstm-tploader-prophet.py`。  
+type的取值：  
+```
+trainer - AI训练器
+prophet - AI预测器
+alert - 告警规则
+```
+告警如果没有特殊算法，algorithm命名就指定为`rule`。  
 
 ---  
-## 通信  
+## 外部引用  
 
+对于非自动安装的外部引用，可以在算法目录中建立lib/子目录保存。 
+自动安装的外部引用，可以在算法目录中进行安装，如Node会安装算法目录的node_modules中。  

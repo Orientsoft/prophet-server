@@ -4,11 +4,11 @@ import TriggerCtrl from '../controllers/trigger';
 const router = express.Router();
 
 // trigger
-router.route('/trigger')
+router.route('/triggers')
     .get(TriggerCtrl.list)
     .post(TriggerCtrl.create);
 
-router.route('/trigger/:triggerId')
+router.route('/triggers/:triggerId')
     .get(TriggerCtrl.read)
     .put(TriggerCtrl.update)
     .delete(TriggerCtrl.remove);
