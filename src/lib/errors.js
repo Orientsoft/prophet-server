@@ -33,6 +33,11 @@ const errors = {
 
     DATA_NOT_INSERTED: { code: 70100, message: '保存数据失败' },
     DATA_NOT_FOUND: { code: 70200, message: '找不到数据' },
+
+    HOST_NOT_INSERTED: { code: 80100, message: '保存主机失败' },
+    HOST_NOT_FOUND: { code: 80200, message: '找不到主机' },
+    HOSTNAME_EXISTED: { code: 80300, message: '主机名存在' },
+    HOST_IP_EXISTED: { code: 80400, message: '主机IP存在' },
 };
 
 export default errors;

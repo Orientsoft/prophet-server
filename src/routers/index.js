@@ -4,6 +4,7 @@ import taskRouter from './tasks';
 import portRouter from './ports';
 import statusRouter from './status';
 import dataRouter from './data';
+import hostRouter from './hosts';
 
 const routers = express.Router();
 
@@ -11,12 +12,13 @@ routers.use(flowRouter);
 routers.use(taskRouter);
 routers.use(portRouter);
 routers.use(statusRouter);
+routers.use(hostRouter);
 routers.use(dataRouter);
 
 // testing route
 routers.route('/greeting').get((req, res) => {
     res.status(200).send({
-        message: 'Welcome to ThisWorld'
+        message: 'Hello, I\'m prophet.'
     });
 });
 
