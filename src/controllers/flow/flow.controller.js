@@ -23,34 +23,27 @@ export function read(req, res) {
     return res.status(200).json(req.flow.toJSON());
 }
 
-export function update(req, res) {
+export async function update(req, res) {
     const { flow, body } = req;
     const { name, tasks } = body;
+    const query = _.pickBy({ name, tasks }, _.identity);
 
-    let namePromise = Promise.resolve();
-    if (name !== undefined && name != null && name != '') {
-        namePromise = Flow.find({ name }).then((existedFlow) => {
-            if (!existedFlow) {
-                flow.set({ name });
-                return Promise.resolve();
+    try {
+        if (name !== flow.name) {
+            const existedFlow = await Flow.find({ name });
+            if (existedFlow.length !== 0) {
+                return res.status(400).send(JSON.stringify(errors.FLOW_NAME_EXISTED));
             }
-
-            return Promise.reject(new Error(errors.FLOW_NAME_EXISTED));
-        });
-    }
-
-    return namePromise.then(() => {
-        if (tasks !== undefined && tasks != null) {
-            flow.set({ tasks });
         }
 
-        return flow.save();
-    }).then((updatedFlow) => {
+        flow.set(query);
+        const updatedFlow = await flow.save();
         return res.status(200).json(updatedFlow.toJSON());
-    }).catch((err) => {
+    }
+    catch(err) {
         logger.error(`FlowCtrl::update() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export function remove(req, res) {
