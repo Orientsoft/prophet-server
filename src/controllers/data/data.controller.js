@@ -2,8 +2,9 @@ import _ from 'lodash';
 import * as CONSTS from '../../consts';
 import { logger } from '../../lib/logger';
 import { ObjectID, MongoClient } from 'mongodb';
+import errors from '../../lib/errors';
 
-import config from '../config';
+import config from '../../config';
 
 // rs or mongos connection should work directly with url
 // https://docs.mongodb.com/manual/reference/connection-string/
@@ -12,7 +13,7 @@ const connect = MongoClient.connect(config.mongoURL);
 export async function create(req, res) {
     try {
         const connection = await connect;
-        const result = await connection.collection(CONSTS.DATA_COLLECTION).insertOne(req.body);
+        const result = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).insertOne(req.body);
         if (result.insertedCount === 1) {
             return res.status(200).json(result.ops[0]);
         }
@@ -33,7 +34,7 @@ export async function list(req, res) {
 
     try {
         const connection = await connect;
-        const dataList = await connection.collection(CONSTS.DATA_COLLECTION).find(query).toArray();
+        const dataList = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).find(query).toArray();
         return res.status(200).json(dataList);
     }
     catch(err) {
@@ -42,10 +43,10 @@ export async function list(req, res) {
     }
 }
 
-export function dataById(req, res, next, id) {
+export async function dataById(req, res, next, id) {
     try {
         const connection = await connect;
-        const data = await connection.collection(CONSTS.DATA_COLLECTION).findOne({ _id: new ObjectID(id) })
+        const data = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).findOne({ _id: new ObjectID(id) })
         if (data !== undefined && data != null) {
             req.data = data;
             return next();
@@ -63,11 +64,14 @@ export function read(req, res) {
     return res.status(200).json(req.data);
 }
 
-export function update(req, res) {
+export async function update(req, res) {
     try {
+        const { body } = req;
+        body._id = new ObjectID(body._id);
+
         const connection = await connect;
-        const result = await connection.collection(CONSTS.DATA_COLLECTION).updateOne({_id: new ObjectID(req.data._id)}, req.body);
-        if (result.updatedCount === 1) {
+        const result = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).replaceOne({_id: new ObjectID(req.data._id)}, body);
+        if (result.modifiedCount === 1 || result.matchedCount === 1) {
             return res.status(200).json(result.ops[0]);
         }
 
@@ -79,10 +83,10 @@ export function update(req, res) {
     }
 }
 
-export function remove(req, res) {
+export async function remove(req, res) {
     try {
         const connection = await connect;
-        const result = await connection.collection(CONSTS.DATA_COLLECTION).deleteOne({_id: req.data._id});
+        const result = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).deleteOne({_id: req.data._id});
         if (result.deletedCount === 1) {
             return res.status(200).end();
         }
