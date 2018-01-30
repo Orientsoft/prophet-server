@@ -9,7 +9,7 @@ export function flowById(req, res, next, id) {
     return Flow.findById(id).then((flow) => {
         if (flow) {
             req.flow = flow;
-            next();
+            return next();
         } else {
             return res.status(400).send(JSON.stringify(errors.FLOW_NOT_FOUND));
         }
@@ -96,6 +96,6 @@ export function list(req, res) {
     })
     .catch((err) => {
         logger.error(`FlowCtrl::list() error`, err);
-        return res.status(500).send(err.toSTring());
+        return res.status(500).send(err.toString());
     });
 }

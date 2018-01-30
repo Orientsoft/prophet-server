@@ -5,6 +5,7 @@ import portRouter from './ports';
 import statusRouter from './status';
 import dataRouter from './data';
 import hostRouter from './hosts';
+import alertRouter from './alerts';
 
 const routers = express.Router();
 
@@ -14,6 +15,7 @@ routers.use(portRouter);
 routers.use(statusRouter);
 routers.use(hostRouter);
 routers.use(dataRouter);
+routers.use(alertRouter);
 
 // testing route
 routers.route('/greeting').get((req, res) => {

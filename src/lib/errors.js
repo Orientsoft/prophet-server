@@ -38,6 +38,10 @@ const errors = {
     HOST_NOT_FOUND: { code: 80200, message: '找不到主机' },
     HOSTNAME_EXISTED: { code: 80300, message: '主机名存在' },
     HOST_IP_EXISTED: { code: 80400, message: '主机IP存在' },
+
+    ALERT_NOT_INSERTED: { code: 90100, message: '保存告警失败' },
+    ALERT_NOT_FOUND: { code: 90200, message: '找不到告警' },
+    ALERT_NAME_EXISTED: { code: 90400, message: '告警ES Index存在' },
 };
 
 export default errors;
