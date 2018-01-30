@@ -4,6 +4,9 @@ import taskRouter from './tasks';
 import portRouter from './ports';
 import statusRouter from './status';
 import dataRouter from './data';
+import userRouter from './user';
+import settingsRouter from './settings';
+import structuresRouter from './structures';
 import hostRouter from './hosts';
 import alertRouter from './alerts';
 
@@ -16,6 +19,9 @@ routers.use(statusRouter);
 routers.use(hostRouter);
 routers.use(dataRouter);
 routers.use(alertRouter);
+routers.use(userRouter);
+routers.use(settingsRouter);
+routers.use(structuresRouter);
 
 // testing route
 routers.route('/greeting').get((req, res) => {
