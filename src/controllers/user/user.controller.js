@@ -78,7 +78,6 @@ export async function info(req, res) {
     
     const cookie = req.headers.cookie || ''
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' })
-    console.log(cookies)
     const response = {}
     const user = {}
     if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
