@@ -8,6 +8,7 @@ import userRouter from './user';
 import settingsRouter from './settings';
 import structuresRouter from './structures';
 import hostRouter from './hosts';
+import alertRouter from './alerts';
 
 const routers = express.Router();
 
@@ -17,6 +18,7 @@ routers.use(portRouter);
 routers.use(statusRouter);
 routers.use(hostRouter);
 routers.use(dataRouter);
+routers.use(alertRouter);
 routers.use(userRouter);
 routers.use(settingsRouter);
 routers.use(structuresRouter);
