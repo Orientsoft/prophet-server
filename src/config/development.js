@@ -10,4 +10,6 @@ module.exports = {
     sessionCollection: process.env.PS_SESSION_COL_DEV,
     // The session cookie name
     sessionName: process.env.PS_SESSION_NAME_DEV,
+    
+    esUrl: process.env.PS_ES_URL_DEV,
 };

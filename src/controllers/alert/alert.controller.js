@@ -1,9 +1,20 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
+import axios from 'axios';
+import http from 'http';
+import https from 'https';
 import { Alert } from '../../models';
+
+import config from '../../config';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
+
+const restClient = axios.create({
+    baseURL: `${config.esUrl}/`,
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true }),
+});
 
 export async function alertById(req, res, next, id) {
     try {
@@ -80,14 +91,8 @@ export async function create(req, res) {
 }
 
 export async function list(req, res) {
-    const page = Number(req.query.page) || 0;
-    const pageSize = Math.min(CONSTS.MIN_PAGE_SIZE,
-        Math.max(CONSTS.MAX_PAGE_SIZE,
-        Number(req.query.pageSize) || CONSTS.DEFAULT_PAGE_SIZE)
-    );
-
-    const { structure, esIndex } = req.query;
-    const query = _.pickBy({ structure, esIndex }, _.identity);
+    const { structure, id, startTs, endTs } = req.query;
+    const query = _.pickBy({ structure, id }, _.identity);
     // TODO : check param
 
     try {
@@ -96,7 +101,69 @@ export async function list(req, res) {
             .limit(pageSize)
             .skip(page * pageSize);
 
-        return res.status(200).json(alerts);
+        // read from es
+        const results = await Promise.mapSeries(alerts, async function(alert) {
+            const result = await restClient.post(`${alert.esIndex}/_search`, {
+                size: 0,
+                aggs: {
+                    serverity: {
+                        date_histogram: {
+                            field: 'alert',
+                            interval: 'minute',
+                            min_doc_count: 0,
+                            extended_bounds: {
+                                min: startTs,
+                                max: endTs
+                            }
+                        },
+                        aggs: {
+                            serverity: {
+                                max: { field: 'serverity' }
+                            },
+                            level: {
+                                max: { field: 'level' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            alert.value = result;
+
+            return alert;
+        });
+
+        const indexes = alerts.reduce((prev, curr) => {
+            return `${prev},${curr.esIndex}`;
+        }, '');
+
+        // reduce
+        const reducedResult = await restClient.post(`${indexes}/_search`, {
+            size: 0,
+            aggs: {
+                serverity: {
+                    date_histogram: {
+                        field: 'alert',
+                        interval: 'minute',
+                        min_doc_count: 0,
+                        extended_bounds: {
+                            min: startTs,
+                            max: endTs
+                        }
+                    },
+                    aggs: {
+                        serverity: {
+                            max: { field: 'serverity' }
+                        },
+                        level: {
+                            max: { field: 'level' }
+                        }
+                    }
+                }
+            }
+        })
+
+        return res.status(200).json({ alerts, aggregatedAlert: reducedResult });
     }
     catch(err) {
         logger.error(`AlertCtrl::list() error`, err);
