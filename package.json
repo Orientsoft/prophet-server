@@ -4,7 +4,7 @@
   "description": "AI control flow backend",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon src/server.js --exec babel-node",
+    "dev": "cross-env NODE_ENV=development nodemon src/server.js 0.0.0.0 --exec babel-node",
     "build": "gulp build",
     "start": "cross-env NODE_ENV=production node dist/server"
   },

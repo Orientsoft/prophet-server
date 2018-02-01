@@ -19,6 +19,22 @@ const treeData = [{
           name: '业务日志',
           level: 2,
           hosts: [],
+          children: [
+            {
+              name: 'tploader',
+              level: 3,
+              children: [{
+                name: '192.168.1.100',
+                level: 4
+              },{
+                name: '192.168.1.101',
+                level: 4
+              },{
+                name: '192.168.1.101',
+                level: 4
+              }]
+            }
+          ]
         },
       ],
     }, {
