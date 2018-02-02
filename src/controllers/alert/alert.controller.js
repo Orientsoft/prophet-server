@@ -91,7 +91,7 @@ export async function create(req, res) {
 }
 
 export async function list(req, res) {
-    const { structure, id, startTs, endTs } = req.query;
+    const { structure, id, startTs, endTs, interval } = req.query;
     const query = _.pickBy({ structure, id }, _.identity);
     // TODO : check param
 
@@ -109,7 +109,7 @@ export async function list(req, res) {
                     serverity: {
                         date_histogram: {
                             field: 'alert',
-                            interval: 'minute',
+                            interval,
                             min_doc_count: 0,
                             extended_bounds: {
                                 min: startTs,
@@ -144,7 +144,7 @@ export async function list(req, res) {
                 serverity: {
                     date_histogram: {
                         field: 'alert',
-                        interval: 'minute',
+                        interval,
                         min_doc_count: 0,
                         extended_bounds: {
                             min: startTs,
