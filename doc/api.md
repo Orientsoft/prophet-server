@@ -411,7 +411,7 @@ alertInRequest:
 ```
 
 请求告警的时候，后端会自动查询ES，并将结果聚合返回。  
-通过`*Ts`字段可以指定查询的时间范围，原则上，每分钟会有一条数据。  
+通过`*Ts`字段可以指定查询的时间范围，通过`interval`字段指定查询的[时间粒度](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#time-units)。  
 
 alertInResponse:  
 
@@ -428,7 +428,7 @@ alertInResponse:
 
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /alerts | structure, [ id ] | | { alerts: [ alertInResponse ], aggregatedAlert: aggregatedAlertInES } | 告警列表 |
+| GET | /alerts | structure, [ id ], startTs, endTs, interval | | { alerts: [ alertInResponse ], aggregatedAlert: aggregatedAlertInES } | 告警列表 |
 | POST | /alerts | | alertInRequest | alertInResponse | 创建告警 |
 | GET | /alerts/:alertId | | | alertInResponse | 获取指定告警 |
 | PUT | /alerts/:alertId | | alertInRequest | alertInResponse | 更改指定告警 |
