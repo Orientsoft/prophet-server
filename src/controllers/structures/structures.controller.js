@@ -152,6 +152,8 @@ const connect = MongoClient.connect(config.mongoURL);
 export async function create(req, res) {
   try {
       const connection = await connect;
+      req.body.createdAt = req.body.updatedAt = new Date()
+
       const result = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).insertOne(req.body);
       if (result.insertedCount === 1) {
           return res.status(200).json(result.ops[0]);
@@ -175,7 +177,7 @@ export async function structrueList(req, res) {
 
   try {
       const connection = await connect;
-      const structureList = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).find(query).toArray();
+      const structureList = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).find(query).sort({createdAt: 1}).toArray();
       return res.status(200).json(structureList);
   }
   catch(err) {
@@ -219,6 +221,7 @@ export async function update(req, res) {
   try {
       const { body } = req;
       body._id = new ObjectID(body._id)
+      body.updatedAt = new Date()
       const connection = await connect;
       const result = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).replaceOne({_id: req.data._id}, body);
       if (result.modifiedCount === 1 || result.matchedCount === 1) {
