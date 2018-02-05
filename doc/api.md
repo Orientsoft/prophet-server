@@ -404,9 +404,7 @@ alertInRequest:
 ```js
 {
     structure: [ ObjectId ], // 与该告警关联的结构ID列表
-    esIndex: String,
-    startTs: Number,
-    endTs: Number
+    esIndex: String
 }
 ```
 

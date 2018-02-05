@@ -67,10 +67,9 @@ export function read(req, res) {
 export async function update(req, res) {
     try {
         const { body } = req;
-        body._id = new ObjectID(body._id);
-
+        body._id = new ObjectID(body._id)
         const connection = await connect;
-        const result = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).replaceOne({_id: new ObjectID(req.data._id)}, body);
+        const result = await connection.db('prophet-server').collection(CONSTS.DATA_COLLECTION).replaceOne({_id: req.data._id}, body);
         if (result.modifiedCount === 1 || result.matchedCount === 1) {
             return res.status(200).json(result.ops[0]);
         }

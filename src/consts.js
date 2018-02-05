@@ -45,6 +45,7 @@ export const MAX_PAGE_SIZE = 100;
 
 export const MONGODB_DB = 'prophet-server'
 export const DATA_COLLECTION = 'data';
+export const STRUCTURE_COLLECTION = 'structures';
 
 //For User
 export const USER_COOKIE_TOKEN_KEY = 'AiDefenderKey'
