@@ -411,6 +411,7 @@ alertInRequest:
 ```
 
 请求告警的时候，后端会自动查询ES，并将结果聚合返回。  
+告警的结果是不分页的，不支持分页参数。  
 通过`*Ts`字段可以指定查询的时间范围，通过`interval`字段指定查询的[时间粒度](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#time-units)。  
 
 alertInResponse:  
