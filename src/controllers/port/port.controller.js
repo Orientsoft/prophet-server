@@ -4,6 +4,7 @@ import { Port } from '../../models';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
+import { getPageOption, getPageMetadata } from '../../lib/utils';
 
 export function portById(req, res, next, id) {
     return Port.findById(id).then((port) => {
@@ -85,26 +86,29 @@ export function create(req, res) {
     });
 }
 
-export function list(req, res) {
-    const page = Number(req.query.page) || 0;
-    const pageSize = Math.min(CONSTS.MIN_PAGE_SIZE,
-        Math.max(CONSTS.MAX_PAGE_SIZE,
-        Number(req.query.pageSize) || CONSTS.DEFAULT_PAGE_SIZE)
-    );
+export async function list(req, res) {
+    const pageOption = getPageOption(req);
+    const { offset, limit } = pageOption;
 
     const { type } = req.query;
     const query = _.pickBy({ type }, _.identity);
+
     // TODO : check param
 
-    return Port.find(query)
-    .sort({ ts: -1 })
-    .limit(pageSize)
-    .skip(page * pageSize)
-    .then((statusList) => {
-        return res.status(200).json(statusList);
-    })
-    .catch((err) => {
+    try {
+        const ports = await Port.find(query)
+            .sort({ ts: -1 })
+            .limit(limit)
+            .skip(offset);
+
+        const count = await Port.count(query);
+
+        return res.status(200).json({
+            _metadata: getPageMetadata(pageOption, count),
+            ports
+        });
+    } catch (err) {
         logger.error(`PortCtrl::list() error`, err);
         return res.status(500).send(err.toSTring());
-    });
+    }
 }

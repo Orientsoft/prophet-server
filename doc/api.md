@@ -459,9 +459,17 @@ hostInResponse:
 }
 ```
 
+hostResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    hosts: [ hostInResponse ]
+}
+```
+
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /hosts | hostname, ip | | [ hostInResponse ] | 主机列表 |
+| GET | /hosts | hostname, ip | | hostResponse | 主机列表 |
 | POST | /hosts | | hostInRequest | hostInResponse | 创建主机 |
 | GET | /hosts/:hostId | | | hostInResponse | 获取指定主机 |
 | PUT | /hosts/:hostId | | hostInRequest | hostInResponse | 更改指定主机 |
@@ -503,9 +511,17 @@ portInResponse:
 }
 ```
 
+portResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    ports: [ portInResponse ]
+}
+```
+
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /ports | name, type | | [ portInResponse ] | 端口列表 |
+| GET | /ports | name, type | | portResponse | 端口列表 |
 | POST | /ports | | portInRequest | portInResponse | 创建端口 |
 | GET | /ports/:portId | | | portInResponse | 获取指定端口 |
 | PUT | /ports/:portId | | portInRequest | portInResponse | 更改指定端口 |
@@ -571,6 +587,14 @@ taskInResponse:
 }
 ```
 
+taskResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    tasks: [ taskInResponse ]
+}
+```
+
 jobInRequest:  
 
 ```js
@@ -605,7 +629,7 @@ testInResponse:
 
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /tasks | name, input, output, type, running | | [ taskInResponse ] | 任务列表 |
+| GET | /tasks | name, input, output, type, running | | taskResponse | 任务列表 |
 | POST | /tasks | | taskInRequest | taskInResponse | 创建任务 |
 | GET | /tasks/:taskId | | | taskInResponse | 获取指定任务 |
 | PUT | /tasks/:taskId | | taskInRequest | taskInResponse | 更改指定任务 |
@@ -667,9 +691,17 @@ triggerInResponse:
 }
 ```
 
+triggerResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    triggers: [ triggerInResponse ]
+}
+```
+
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /triggers | name, type, task, action, target | | [ triggerInResponse ] | 触发器列表 |
+| GET | /triggers | name, type, task, action, target | | triggerResponse | 触发器列表 |
 | POST | /triggers | | triggerInRequest | triggerInResponse | 创建触发器 |
 | GET | /triggers/:triggerId | | | triggerInResponse | 获取指定触发器 |
 | PUT | /triggers/:triggerId | | triggerInRequest | triggerInResponse | 更改指定触发器 |
@@ -704,9 +736,17 @@ flowInResponse:
 }
 ```
 
+flowResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    flows: [ flowInResponse ]
+}
+```
+
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /flows | name | | [ flowInResponse ] | 流程列表 |
+| GET | /flows | name | | flowResponse | 流程列表 |
 | POST | /flows | | flowInRequest | flowInResponse | 创建流程 |
 | GET | /flows/:flowId | | | flowInResponse | 获取指定流程 |
 | PUT | /flows/:flowId | | flowInRequest | flowInResponse | 更改指定流程 |
@@ -753,7 +793,15 @@ statusInResponse:
 }
 ```
 
+statusResponse:
+```js
+{
+    _metadata: { page, pageSize, pageCount, totalCount },
+    statusList: [ statusInResponse ]
+}
+```
+
 | method | path | query | request | response | remark |
 | ------ | ---- | ----- | ------- | -------- | ------ |
-| GET | /status | source, code, level, from, to | | [ statusInResponse ] | 状态列表 |
+| GET | /status | source, code, level, from, to | | statusResponse | 状态列表 |
 | POST | /status | | statusInRequest | statusInResponse | 创建状态 |

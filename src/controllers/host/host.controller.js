@@ -4,6 +4,7 @@ import { Host } from '../../models';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
+import { getPageOption, getPageMetadata } from '../../lib/utils';
 
 export async function hostById(req, res, next, id) {
     try {
@@ -73,26 +74,29 @@ export async function create(req, res) {
     }
 }
 
-export function list(req, res) {
-    const page = Number(req.query.page) || 0;
-    const pageSize = Math.min(CONSTS.MIN_PAGE_SIZE,
-        Math.max(CONSTS.MAX_PAGE_SIZE,
-        Number(req.query.pageSize) || CONSTS.DEFAULT_PAGE_SIZE)
-    );
+export async function list(req, res) {
+    const pageOption = getPageOption(req);
+    const { offset, limit } = pageOption;
 
     const { hostname, ip } = req.query;
     const query = _.pickBy({ hostname, ip }, _.identity);
+
     // TODO : check param
 
-    return Host.find(query)
-    .sort({ ts: -1 })
-    .limit(pageSize)
-    .skip(page * pageSize)
-    .then((hosts) => {
-        return res.status(200).json(hosts);
-    })
-    .catch((err) => {
+    try {
+        const hosts = await Host.find(query)
+            .sort({ ts: -1 })
+            .limit(limit)
+            .skip(offset);
+
+        const count = await Host.count(query);
+
+        return res.status(200).json({
+            _metadata: getPageMetadata(pageOption, count),
+            hosts 
+        });
+    } catch (err) {
         logger.error(`hostCtrl::list() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }

@@ -4,6 +4,7 @@ import { Task, Port } from '../../models';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
+import { getPageOption, getPageMetadata } from '../../lib/utils';
 
 export function taskById(req, rex, next, id) {
     return Task.findById(id).then((task) => {
@@ -160,26 +161,29 @@ export function create(req, res) {
     });
 }
 
-export function list(req, res) {
-    const page = Number(req.query.page) || 0;
-    const pageSize = Math.min(CONSTS.MIN_PAGE_SIZE,
-        Math.max(CONSTS.MAX_PAGE_SIZE,
-        Number(req.query.pageSize) || CONSTS.DEFAULT_PAGE_SIZE)
-    );
+export async function list(req, res) {
+    const pageOption = getPageOption(req);
+    const { offset, limit } = pageOption;
 
     const { name, input, output, type, running } = req.query;
     const query = _.pickBy({ name, input, output, type, running }, _.identity);
+
     // TODO : check param
 
-    return Task.find(query)
-    .sort({ ts: -1 })
-    .limit(pageSize)
-    .skip(page * pageSize)
-    .then((tasks) => {
-        return res.status(200).json(tasks);
-    })
-    .catch((err) => {
+    try {
+        const tasks = await Task.find(query)
+            .sort({ ts: -1 })
+            .limit(limit)
+            .skip(offset);
+
+        const count = await Task.count(query);
+
+        return res.status(200).json({
+            _metadata: getPageMetadata(pageOption, count),
+            tasks
+        });
+    } catch (err) {
         logger.error(`TaskCtrl::list() error`, err);
         return res.status(500).send(err.toSTring());
-    });
+    }
 }

@@ -4,6 +4,7 @@ import * as pmService from '../../services/pm2';
 import * as CONSTS from '../../consts';
 import { errors } from '../../lib/errors';
 import { logger } from '../../lib/logger';
+import { getPageOption, getPageMetadata } from '../../lib/utils';
 
 export function jobById(req, res, next, id) {
     Task.findById(id).then((task) => {

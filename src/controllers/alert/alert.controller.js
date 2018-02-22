@@ -9,6 +9,7 @@ import config from '../../config';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
+// import { getPageOption, getPageMetadata } from '../../lib/utils';
 
 const restClient = axios.create({
     baseURL: `${config.esUrl}/`,
@@ -93,13 +94,12 @@ export async function create(req, res) {
 export async function list(req, res) {
     const { structure, id, startTs, endTs, interval } = req.query;
     const query = _.pickBy({ structure, id }, _.identity);
+
     // TODO : check param
 
     try {
         const alerts = await Alert.find(query)
             .sort({ ts: -1 })
-            .limit(pageSize)
-            .skip(page * pageSize);
 
         // read from es
         const results = await Promise.mapSeries(alerts, async function(alert) {
