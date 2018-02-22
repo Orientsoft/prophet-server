@@ -11,9 +11,9 @@ export function taskById(req, rex, next, id) {
         if (task) {
             req.task = task;
             next();
-        } else {
-            return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));
         }
+
+        return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));
     }).catch((err) => {
         logger.error(`TaskCtrl::taskById() error`, err);
         res.status(500).send(err.toString());
@@ -24,80 +24,67 @@ export function read(req, res) {
     return res.status(200).json(req.task.toJSON());
 }
 
-// front-end should check if there's job instanced from
-// this task before updating or deleting
-
-export function update(req, res) {
+export async function update(req, res) {
     const { task, body } = req;
-    const { name, input, output, script, params, type, cron, running } = body;
+    const {
+        name,
+        input,
+        output,
+        script,
+        params,
+        type,
+        cron,
+        running
+    } = body;
+    const newTask = _.pickBy({
+        name,
+        input,
+        output,
+        script,
+        params,
+        type,
+        cron,
+        running
+    }, _.identity);
 
-    let namePromise = Promise.resolve();
-    if (name !== undefined && name != null && name != '') {
-        namePromise = Task.find({ name }).then((existedTask) => {
-            if (!existedTask) {
-                task.set({ name });
-                return Promise.resolve();
+    try {
+        if (name !== undefined && name != null && name != '') {
+            const existedTask = await Task.find({ name });
+            if (existedTask !== undefined && existedTask != null) {
+                return res.status(400).send(JSON.stringify(errors.TASK_NAME_EXISTED));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(TASK_NAME_EXISTED)));
-        });
-    }
-
-    let inputPromise = Promise.resolve();
-    if (input !== undefined && input != null) {
-        inputPromise = Port.findById(input).then((inputPort) => {
-            if (inputPort) {
-                task.set({ input })
-                return Promise.resolve();
+        if (input !== undefined && input != null) {
+            const inputPort = await Port.findById(input);
+            if (inputPort === undefined && inputPort == null) {
+                return res.status(400).send(JSON.stringify(errors.TASK_INPUT_NOT_FOUND));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(errors.TASK_INPUT_NOT_FOUND)));
-        });
-    }
-
-    let outputPromise = Promise.resolve();
-    if (output !== undefined && output != null) {
-        outputPromise = Port.findById(output).then((outputPort) => {
-            if (outputPort) {
-                task.set({ output })
-                return Promise.resolve();
+        if (output !== undefined && output != null) {
+            const outputPort = await Port.findById(output);
+            if (outputPort === undefined && outputPort == null) {
+                return res.status(400).send(JSON.stringify(errors.TASK_OUTPUT_NOT_FOUND));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(errors.TASK_OUTPUT_NOT_FOUND)));
-        });
-    }
+        // TODO : stop job
 
-    if (script !== undefined && script != null) {
-        task.set({ script });
-    }
+        _.assignIn(task, newTask);
+        const updatedTask = await task.save();
 
-    if (params !== undefined && params != null) {
-        task.set({ params });
-    }
+        // TODO : start job
 
-    if (type !== undefined && type != null) {
-        task.set({ type });
-    }
-
-    if (cron !== undefined && cron != null) {
-        task.set({ cron });
-    }
-
-    if (running !== undefined && running !=null) {
-        task.set({ running });
-    }
-
-    return Promise.join(namePromise, inputPromise, outputPromise).then(() => {
-        return task.save();
-    }).then((updatedTask) => {
         return res.status(200).json(updatedTask.toJSON());
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`TaskCtrl::update() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export function remove(req, res) {
+    // TODO : stop job
     return req.task.remove().then(() => {
         return res.status(200).end();
     }).catch((err) => {

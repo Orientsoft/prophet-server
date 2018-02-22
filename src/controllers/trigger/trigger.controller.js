@@ -19,7 +19,7 @@ export function create(req, res) {
     });
 }
 
-export function list(req, res) {
+export async function list(req, res) {
     const pageOption = getPageOption(req);
     const { offset, limit } = pageOption;
 
