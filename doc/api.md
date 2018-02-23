@@ -719,8 +719,7 @@ flowInRequest:
 ```js
 {
     name: String,
-    tasks: [ ObjectId ],
-    triggers: [ ObjectId ]
+    tasks: [ ObjectId ]
 }
 ```
 
@@ -731,7 +730,6 @@ flowInResponse:
     id: ObjectId,
     name: String,
     tasks: [ ObjectId ],
-    triggers: [ ObjectId ],
     createAt: Date,
     updatedAt: Date
 }
