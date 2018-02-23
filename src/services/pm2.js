@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import pm2 from 'pm2';
 
-const connect = () => {
+export const connect = () => {
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
             if (err) {
@@ -13,7 +13,7 @@ const connect = () => {
     });
 }
 
-const register = (name, path, cron, params) => {
+export const register = (name, path, cron, params) => {
     return connect.then((pm2) => {
         return start(name, path, cron, params);
     }).then((proc) => {
@@ -23,7 +23,7 @@ const register = (name, path, cron, params) => {
     });
 }
 
-const start = (name, path, cron, params) => {
+export const start = (name, path, cron, params) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.start({name, script: path, cron, args: params}, (err, proc) => {
@@ -39,7 +39,7 @@ const start = (name, path, cron, params) => {
     });
 }
 
-const stop = (name) => {
+export const stop = (name) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.delete(name, (err, proc) => {
@@ -55,7 +55,7 @@ const stop = (name) => {
     });
 }
 
-const pause = (name) => {
+export const pause = (name) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.stop(name, (err, proc) => {
@@ -71,7 +71,7 @@ const pause = (name) => {
     });
 }
 
-const resume = (name) => {
+export const resume = (name) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.restart(name, (err, proc) => {
@@ -87,7 +87,7 @@ const resume = (name) => {
     });
 }
 
-const list = () => {
+export const list = () => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.stop(name, (err, procs) => {
@@ -103,7 +103,7 @@ const list = () => {
     });
 }
 
-const describe = (name) => {
+export const describe = (name) => {
     return connect.then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.describe(name, (err, proc) => {
@@ -118,5 +118,3 @@ const describe = (name) => {
         pm2.disconnect();
     });
 }
-
-export default { connect, start, stop, list, describe };

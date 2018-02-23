@@ -25,11 +25,13 @@ const errors = {
     TASK_NAME_EXISTED: { code: 40200, message: '任务名称已经被占用' },
     TASK_INPUT_NOT_FOUND: { code: 40300, message: '找不到输入端口' },
     TASK_OUTPUT_NOT_FOUND: { code: 40400, message: '找不到输出端口' },
+    TASK_IN_FLOW: { code: 40500, message: '任务已经加入流程' },
 
     FLOW_NOT_FOUND: { code: 50100, message: '找不到流程' },
     FLOW_NAME_EXISTED: { code: 50200, message: '流程名称已经被占用' },
 
     TRIGGER_NOT_FOUND: { code: 60100, message: '找不到触发器' },
+    UNKNOWN_TRIGGER_TYPE: { code: 60200, message: '未知的触发器类型' },
 
     DATA_NOT_INSERTED: { code: 70100, message: '保存数据失败' },
     DATA_NOT_FOUND: { code: 70200, message: '找不到数据' },

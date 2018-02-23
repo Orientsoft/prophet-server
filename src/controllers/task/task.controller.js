@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
-import { Task, Port } from '../../models';
+import { Task, Port, Job, Flow } from '../../models';
+import { taskStart } from './job.controller';
+import * as pmService from '../../services/pm2';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
@@ -69,12 +71,20 @@ export async function update(req, res) {
             }
         }
 
-        // TODO : stop job
+        const running = task.running;
+
+        // stop old job
+        if (running) {
+            await pmService.stop(task.name);
+        }
 
         _.assignIn(task, newTask);
         const updatedTask = await task.save();
 
-        // TODO : start job
+        // start new job
+        if (running) {
+            await taskStart(updatedTask);
+        }
 
         return res.status(200).json(updatedTask.toJSON());
     } catch (err) {
@@ -83,14 +93,29 @@ export async function update(req, res) {
     }
 }
 
-export function remove(req, res) {
-    // TODO : stop job
-    return req.task.remove().then(() => {
+export async function remove(req, res) {
+    const { task } = req;
+
+    try {
+        // check if this task is in flow
+        const flows = await Flow.find({ tasks: task._id });
+        if (flows.length > 0) {
+            return res.status(400)
+                .send(JSON.stringify(errors.TASK_IN_FLOW));
+        }
+
+        // stop job
+        if (task.running) {
+            pmService.stop(task.name);
+        }
+
+        await task.remove();
+
         return res.status(200).end();
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`TaskCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export function create(req, res) {
