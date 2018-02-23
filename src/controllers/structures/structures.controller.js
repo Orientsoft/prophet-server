@@ -221,6 +221,7 @@ export async function update(req, res) {
   try {
       const { body } = req;
       body._id = new ObjectID(body._id)
+      body.createdAt = new Date(body.createdAt)
       body.updatedAt = new Date()
       const connection = await connect;
       const result = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).replaceOne({_id: req.data._id}, body);
