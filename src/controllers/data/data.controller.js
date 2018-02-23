@@ -30,7 +30,12 @@ export async function list(req, res) {
     // no need to support paging
 
     const { type, structure } = req.query;
-    const query = _.pickBy({ type, structure }, _.identity);
+    let query = {}
+    if(type.indexOf(',') >=0) {
+        query = _.pickBy({ type: { $in: type.split(',') }, structure }, _.identity);
+    } else {
+        query = _.pickBy({ type, structure }, _.identity);
+    }
 
     try {
         const connection = await connect;
