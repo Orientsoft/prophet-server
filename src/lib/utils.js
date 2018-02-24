@@ -1,6 +1,7 @@
 import path from 'path';
 import _ from 'lodash';
 import errors from './errors';
+import * as CONSTS from '../consts'
 
 export function isProduction() {
     return process.env.NODE_ENV === 'production';

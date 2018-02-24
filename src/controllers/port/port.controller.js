@@ -72,7 +72,7 @@ export function create(req, res) {
         if (existedPort.length === 0) {
             return Port.create({
                 name: req.body.name,
-                type: req.body.type || CONSTS.PORT_TYPE.REDIS_PUBSUB
+                type: req.body.type || CONSTS.PORT_TYPES.REDIS_CHANNEL
             });
         }
 
