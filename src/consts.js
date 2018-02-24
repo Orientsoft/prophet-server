@@ -31,13 +31,13 @@ export const TRIGGER_ACTIONS = {
     START: 0,
     STOP: 1,
     RESTART: 2
-}
+};
 
 export const ALERT_LEVELS = {
     NORMAL: 0,
     WARNING: 1,
     ERROR: 2
-}
+};
 
 export const DEFAULT_PAGE_SIZE = 20;
 export const MIN_PAGE_SIZE = 20;
@@ -48,4 +48,6 @@ export const DATA_COLLECTION = 'data';
 export const STRUCTURE_COLLECTION = 'structures';
 
 //For User
-export const USER_COOKIE_TOKEN_KEY = 'AiDefenderKey'
+export const USER_COOKIE_TOKEN_KEY = 'AiDefenderKey';
+
+export const WATCHDOG_INTERVAL = 5000;

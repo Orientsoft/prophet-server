@@ -24,36 +24,31 @@ export function read(req, res) {
     return res.status(200).json(req.port.toJSON());
 }
 
-export function update(req, res) {
+export async function update(req, res) {
     const { port, body } = req;
     const { name, type } = body;
 
-    let namePromise = Promise.resolve();
-    if (name !== undefined && name != null && name != '') {
-        namePromise = Port.find({
-            name
-        }).then((existedPort) => {
-            if (!existedPort) {
-                port.set({ name });
-                return Promise.resolve();
+    try {
+        if (name !== undefined && name != null && name != port.name) {
+            const existedPort = await Port.findOne({ name });
+            if (existedPort) {
+                return res.status(400).send(JSON.stringify(errors.PORT_NAME_EXISTED));
             }
 
-            return Promise.reject(new Error(errors.PORT_NAME_EXISTED));
-        });
-    }
+            port.name = name;
+        }
 
-    if (type !== undefined && type != null) {
-        port.set({ type });
-    }
+        if (type !== undefined && type != null) {
+            port.type = type;
+        }
 
-    return namePromise.then(() => {
-        return port.save();
-    }).then((updatedPort) => {
+        const updatedPort = await port.save();
+
         return res.status(200).json(updatedPort.toJSON());
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`PortCtrl::update() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export function remove(req, res) {
@@ -72,7 +67,7 @@ export function create(req, res) {
         if (existedPort.length === 0) {
             return Port.create({
                 name: req.body.name,
-                type: req.body.type || CONSTS.PORT_TYPE.REDIS_PUBSUB
+                type: req.body.type || CONSTS.PORT_TYPES.REDIS_PUBSUB
             });
         }
 
