@@ -12,13 +12,13 @@ export function taskById(req, res, next, id) {
     return Task.findById(id).then((task) => {
         if (task) {
             req.task = task;
-            next();
+            return next();
         }
 
         return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));
     }).catch((err) => {
         logger.error(`TaskCtrl::taskById() error`, err);
-        res.status(500).send(err.toString());
+        return res.status(500).send(err.toString());
     });
 }
 
