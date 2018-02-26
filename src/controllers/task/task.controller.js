@@ -186,17 +186,13 @@ export async function list(req, res) {
     // TODO : check param
 
     try {
-        let tasks = await Task.find(query).lean()
+        const tasks = await Task.find(query)
             .sort({ ts: -1 })
             .limit(limit)
-            .skip(offset);
+            .skip(offset)
+            .toJSON();
 
         const count = await Task.count(query);
-     
-        for(let i = 0; i < tasks.length; i++) {
-            tasks[i].input  = await Port.findById(tasks[i].input)
-            tasks[i].output  = await Port.findById(tasks[i].output)
-        }
         
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
