@@ -47,7 +47,7 @@ export async function update(req, res) {
     }
 }
 
-export function remove(req, res) {
+export async function remove(req, res) {
     return req.flow.remove().then(() => {
         return res.status(200).end();
     }).catch((err) => {
