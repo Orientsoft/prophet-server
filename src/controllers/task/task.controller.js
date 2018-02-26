@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
-import { Task, Port, Job, Flow } from '../../models';
-import { taskStart } from './job.controller';
+import { Task, Port, Job, Flow, Trigger } from '../../models';
+import * as taskService from '../../services/task';
 import * as pmService from '../../services/pm2';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
 import { getPageOption, getPageMetadata } from '../../lib/utils';
 
-export function taskById(req, rex, next, id) {
+export function taskById(req, res, next, id) {
     return Task.findById(id).then((task) => {
         if (task) {
             req.task = task;
@@ -83,7 +83,7 @@ export async function update(req, res) {
 
         // start new job
         if (running) {
-            await taskStart(updatedTask);
+            await taskService.taskStart(updatedTask);
         }
 
         return res.status(200).json(updatedTask.toJSON());
@@ -103,6 +103,9 @@ export async function remove(req, res) {
             return res.status(400)
                 .send(JSON.stringify(errors.TASK_IN_FLOW));
         }
+
+        // remove attached trigger(s)
+        await Trigger.Remove({ task: task._id });
 
         // stop job
         if (task.running) {

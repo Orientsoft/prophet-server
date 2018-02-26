@@ -2,66 +2,11 @@ import Promise from 'bluebird';
 import { Task, Port, Trigger } from '../../models';
 import * as pmService from '../../services/pm2';
 import * as triggerService from '../../services/trigger';
+import * as taskService from '../../services/task';
 import * as CONSTS from '../../consts';
 import { errors } from '../../lib/errors';
 import { logger } from '../../lib/logger';
 import { getPageOption, getPageMetadata } from '../../lib/utils';
-
-export async function taskStart(task) {
-    try {
-        const inputPort = await Port.findById(task.input);
-        if (!inputPort) {
-            return Promise.reject(new Error(
-                JSON.stringify(errors.TASK_INPUT_NOT_FOUND)
-            ));
-        }
-    
-        const outputPort = await Port.findById(task.output);
-        if (!outputPort) {
-            return Promise.reject(new Error(
-                JSON.stringify(errors.TASK_OUTPUT_NOT_FOUND)
-            ));
-        }
-    
-        if (task.params === undefined || task.params == null) {
-            task.params = [
-                `--input-type ${inputPort.type}`,
-                `--input-name ${inputPort.name}`,
-                `--output-type ${outputPort.type}`,
-                `--output-name ${outputPort.name}`
-            ];
-        } else {
-            task.params.push(`--input-type ${inputPort.type}`);
-            task.params.push(`--input-name ${inputPort.name}`);
-            task.params.push(`--output-type ${outputPort.type}`);
-            task.params.push(`--output-name ${outputPort.name}`);
-        }
-    
-        // execute pre-trigger
-        const preTrigger = await Trigger.findOne({
-            type: CONSTS.TRIGGER_TYPES.PRE,
-            task: task._id
-        });
-    
-        if (preTrigger !== undefined && preTrigger != null) {
-            await triggerService.execute(preTrigger);
-        }
-    
-        const proc = await pmService.start(
-            task.name,
-            task.script,
-            task.cron,
-            task.params
-        );
-    
-        task.running = true;
-        await task.save();
-    
-        return proc;
-    } catch (err) {
-        return Promise.reject(err);
-    }
-}
 
 export function jobById(req, res, next, id) {
     Task.findById(id).then((task) => {
@@ -108,7 +53,7 @@ export async function start(req, res) {
                 )));
             }
 
-            return await taskStart(task);
+            return await taskService.taskStart(task);
         });
     
         return res.status(200).json(procs);

@@ -32,6 +32,7 @@ const errors = {
 
     TRIGGER_NOT_FOUND: { code: 60100, message: '找不到触发器' },
     UNKNOWN_TRIGGER_TYPE: { code: 60200, message: '未知的触发器类型' },
+    UNKNOWN_TRIGGER_ACTION: { code: 60200, message: '未知的触发器动作' },
 
     DATA_NOT_INSERTED: { code: 70100, message: '保存数据失败' },
     DATA_NOT_FOUND: { code: 70200, message: '找不到数据' },

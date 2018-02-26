@@ -39,6 +39,15 @@ export const ALERT_LEVELS = {
     ERROR: 2
 };
 
+export const JOB_STATUS_TYPES = {
+    online: 0,
+    stopping: 1,
+    stopped: 2,
+    launching: 3,
+    errored: 4,
+    'one-launch-status': 5
+};
+
 export const DEFAULT_PAGE_SIZE = 20;
 export const MIN_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 100;

@@ -3,6 +3,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+import * as triggerService from './services/trigger';
 import * as mongoose from './lib/mongoose';
 // import * as redis from './lib/redis';
 import { httpLogger } from './lib/logger';
@@ -12,6 +13,9 @@ import config from './config';
 
 const app = express();
 const RedisStore = require('connect-redis')(session);
+
+// post-trigger watcher
+triggerService.startWatchdog();
 
 // MongoDB Connection
 mongoose.connect();

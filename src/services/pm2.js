@@ -14,7 +14,7 @@ export const connect = () => {
 }
 
 export const register = (name, path, cron, params) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return start(name, path, cron, params);
     }).then((proc) => {
         return pause(name);
@@ -24,7 +24,7 @@ export const register = (name, path, cron, params) => {
 }
 
 export const start = (name, path, cron, params) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.start({name, script: path, cron, args: params}, (err, proc) => {
                 if (err) {
@@ -40,7 +40,7 @@ export const start = (name, path, cron, params) => {
 }
 
 export const stop = (name) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.delete(name, (err, proc) => {
                 if (err) {
@@ -56,7 +56,7 @@ export const stop = (name) => {
 }
 
 export const pause = (name) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.stop(name, (err, proc) => {
                 if (err) {
@@ -72,7 +72,7 @@ export const pause = (name) => {
 }
 
 export const resume = (name) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.restart(name, (err, proc) => {
                 if (err) {
@@ -88,9 +88,9 @@ export const resume = (name) => {
 }
 
 export const list = () => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
-            pm2.stop(name, (err, procs) => {
+            pm2.list((err, procs) => {
                 if (err) {
                     reject(err);
                 }
@@ -104,7 +104,7 @@ export const list = () => {
 }
 
 export const describe = (name) => {
-    return connect.then((pm2) => {
+    return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.describe(name, (err, proc) => {
                 if (err) {
