@@ -181,16 +181,15 @@ export async function list(req, res) {
             .sort({ ts: -1 })
             .limit(limit)
             .skip(offset)
-            .toJSON();
 
         const count = await Task.count(query);
         
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            tasks
+            tasks: tasks.map((task) => task.toJSON())
         });
     } catch (err) {
         logger.error(`TaskCtrl::list() error`, err);
-        return res.status(500).send(err.toSTring());
+        return res.status(500).send(err.toString());
     }
 }
