@@ -105,7 +105,7 @@ export async function remove(req, res) {
         }
 
         // remove attached trigger(s)
-        await Trigger.Remove({ task: task._id });
+        await Trigger.remove({ task: task._id });
 
         // stop job
         if (task.running) {

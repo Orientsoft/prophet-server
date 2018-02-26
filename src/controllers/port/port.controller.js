@@ -52,13 +52,14 @@ export async function update(req, res) {
     }
 }
 
-export function remove(req, res) {
-    return req.port.remove().then(() => {
+export async function remove(req, res) {
+    try {
+        await req.port.remove();
         return res.status(200).end();
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`PortCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export function create(req, res) {

@@ -74,11 +74,12 @@ export function update(req, res) {
     });
 }
 
-export function remove(req, res) {
-    return req.trigger.remove(() => {
+export async function remove(req, res) {
+    try {
+        await req.trigger.remove();
         return res.status(200).end();
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`TriggerCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
-    })
+    }
 }

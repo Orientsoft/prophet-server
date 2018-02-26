@@ -45,13 +45,14 @@ export async function update(req, res) {
     }
 }
 
-export function remove(req, res) {
-    return req.myHost.remove().then(() => {
+export async function remove(req, res) {
+    try {
+        await req.host.remove();
         return res.status(200).end();
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`HostCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export async function create(req, res) {
