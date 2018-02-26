@@ -29,7 +29,7 @@ export async function alertById(req, res, next, id) {
     }
     catch(err) {
         logger.error(`AlertCtrl::alertById() error`, err);
-        res.status(500).send(err.toString());
+        return res.status(500).send(err.toString());
     }
 }
 

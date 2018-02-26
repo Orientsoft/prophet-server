@@ -36,7 +36,7 @@ export async function list(req, res) {
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            triggers
+            triggers: triggers.map((trigger) => trigger.toJSON())
         });
     } catch (err) {
         logger.error(`TriggerCtrl::list() error`, err);
@@ -53,6 +53,7 @@ export function triggerById(req, res, next, id) {
 
         return res.status(400).send(JSON.stringify(errors.TRIGGER_NOT_FROUND));
     }).catch((err) => {
+        logger.error(`TriggerCtrl::triggerById() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -68,6 +69,7 @@ export function update(req, res) {
     return req.trigger.update(query).then((trigger) => {
         return res.status(200).json(trigger.toJSON());
     }).catch((err) => {
+        logger.error(`TriggerCtrl::read() error`, err);
         return res.status(500).send(err.toString());
     });
 }
@@ -76,6 +78,7 @@ export function remove(req, res) {
     return req.trigger.remove(() => {
         return res.status(200).end();
     }).catch((err) => {
+        logger.error(`TriggerCtrl::remove() error`, err);
         return res.status(500).send(err.toString());
     })
 }

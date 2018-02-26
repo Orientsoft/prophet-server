@@ -37,7 +37,7 @@ export async function list(req, res) {
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            statusList
+            statusList: statusList.map((status) => status.toJSON())
         });
     } catch (err) {
         logger.error(`StatusCtrl::list() error`, err);

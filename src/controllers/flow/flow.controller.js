@@ -11,9 +11,9 @@ export function flowById(req, res, next, id) {
         if (flow) {
             req.flow = flow;
             return next();
-        } else {
-            return res.status(400).send(JSON.stringify(errors.FLOW_NOT_FOUND));
         }
+
+        return res.status(400).send(JSON.stringify(errors.FLOW_NOT_FOUND));
     }).catch((err) => {
         logger.error(`FlowCtrl::flowById() error`, err);
         res.status(500).send(err.toString());
@@ -96,7 +96,7 @@ export async function list(req, res) {
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            flows
+            flows: flows.map((flow) => flow.toJSON())
         });
     } catch (err) {
         logger.error(`FlowCtrl::list() error`, err);

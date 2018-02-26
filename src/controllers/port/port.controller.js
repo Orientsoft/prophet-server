@@ -10,13 +10,13 @@ export function portById(req, res, next, id) {
     return Port.findById(id).then((port) => {
         if (port) {
             req.port = port;
-            next();
-        } else {
-            return res.status(400).send(JSON.stringify(errors.PORT_NOT_FOUND));
+            return next();
         }
+        
+        return res.status(400).send(JSON.stringify(errors.PORT_NOT_FOUND));
     }).catch((err) => {
         logger.error(`PortCtrl::portById() error`, err);
-        res.status(500).send(err.toString());
+        return res.status(500).send(err.toString());
     });
 }
 
@@ -101,7 +101,7 @@ export async function list(req, res) {
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            ports
+            ports: ports.map((port) => port.toJSON())
         });
     } catch (err) {
         logger.error(`PortCtrl::list() error`, err);

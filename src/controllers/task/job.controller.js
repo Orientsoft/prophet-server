@@ -12,7 +12,7 @@ export function jobById(req, res, next, id) {
     Task.findById(id).then((task) => {
         if (task) {
             req.task = task;
-            next();
+            return next();
         }
 
         return res.status(400).send(JSON.stringify(errors.TASK_NOT_FOUND));

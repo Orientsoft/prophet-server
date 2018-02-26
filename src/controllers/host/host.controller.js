@@ -18,7 +18,7 @@ export async function hostById(req, res, next, id) {
     }
     catch(err) {
         logger.error(`HostCtrl::HostById() error`, err);
-        res.status(500).send(err.toString());
+        return res.status(500).send(err.toString());
     }
 }
 
@@ -93,7 +93,7 @@ export async function list(req, res) {
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            hosts 
+            hosts: hosts.map((host) => host.toJSON())
         });
     } catch (err) {
         logger.error(`hostCtrl::list() error`, err);
