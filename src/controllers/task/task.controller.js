@@ -121,59 +121,50 @@ export async function remove(req, res) {
     }
 }
 
-export function create(req, res) {
+export async function create(req, res) {
     const { name, input, output } = req.body;
 
-    let namePromise = Promise.resolve();
-    if (name !== undefined && name != null && name != '') {
-        namePromise = Task.find({ name }).then((existedTask) => {
-            if (existedTask.length === 0) {
-                return Promise.resolve();
+    try {
+        if (name !== undefined && name != null && name != '') {
+            const existedTask = await Task.findOne({ name });
+            if (existedTask) {
+                return res.status(400)
+                    .send(JSON.stringify(errors.TASK_NAME_EXISTED));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(errors.TASK_NAME_EXISTED)));
-        });
-    }
-
-    let inputPromise = Promise.resolve();
-    if (input !== undefined && input != null) {
-        inputPromise = Port.findById(input).then((inputPort) => {
-            if (inputPort) {
-                return Promise.resolve();
+        if (input !== undefined && input != null) {
+            const inputPort = await Port.findById(input);
+            if (!inputPort) {
+                return res.status(400)
+                    .send(JSON.stringify(errors.TASK_INPUT_NOT_FOUND));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(errors.TASK_INPUT_NOT_FOUND)));
-        });
-    }
-
-    let outputPromise = Promise.resolve();
-    if (output !== undefined && output != null) {
-        outputPromise = Port.findById(output).then((outputPort) => {
-            if (outputPort) {
-                return Promise.resolve();
+        if (output !== undefined && output != null) {
+            const outputPort = await Port.findById(output);
+            if (!outputPort) {
+                return res.status(400)
+                    .send(JSON.stringify(errors.TASK_OUTPUT_NOT_FOUND));
             }
+        }
 
-            return Promise.reject(new Error(JSON.stringify(errors.TASK_OUTPUT_NOT_FOUND)));
-        });
-    }
-
-    return Promise.join(namePromise, inputPromise, outputPromise).then(() => {
-        return Task.create({
+        const task = await Task.create({
             name,
             input,
             output,
             script: req.body.script || '',
             params: req.body.params || [],
-            type: req.body.type || CONSTS.TASK_TYPE.NORMAL,
+            type: req.body.type || CONSTS.TASK_TYPES.NORMAL,
             cron: req.body.cron || '',
             running: false
         });
-    }).then((task) => {
-        return res.status(200).json(task);
-    }).catch((err) => {
+
+        return res.status(200).json(task.toJSON());
+    } catch (err) {
         logger.error(`TaskCtrl::create() error`, err);
         return res.status(500).send(err.toString());
-    });
+    }
 }
 
 export async function list(req, res) {
