@@ -7,7 +7,4 @@ const statusSchema = new mongoose.Schema({
     content: String
 }, { timestamps: true });
 
-statusSchema.index({ 'createdAt': -1 });
-statusSchema.index({ 'updatedAt': -1 });
-
 export default mongoose.model('Status', statusSchema);

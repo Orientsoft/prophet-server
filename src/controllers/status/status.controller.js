@@ -25,11 +25,9 @@ export async function list(req, res) {
     const { source, code, level } = req.query;
     const query = _.pickBy({ source, code, level }, _.identity);
 
-    // TODO : check param
-
     try {
         const statusList = await Status.find(query)
-            .sort({ ts: -1 })
+            .sort({ _id: -1 })
             .limit(limit)
             .skip(offset);
 
