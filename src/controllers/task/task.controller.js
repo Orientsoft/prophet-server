@@ -8,6 +8,14 @@ import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
 import { getPageOption, getPageMetadata } from '../../lib/utils';
 
+export async function embedTaskPorts(task) {
+    const plainTask = task.toJSON();
+    plainTask.input = await Port.findById(task.input);
+    plainTask.output = await Port.findById(task.output);
+
+    return plainTask;
+}
+
 export function taskById(req, res, next, id) {
     return Task.findById(id).then((task) => {
         if (task) {
@@ -22,8 +30,15 @@ export function taskById(req, res, next, id) {
     });
 }
 
-export function read(req, res) {
-    return res.status(200).json(req.task.toJSON());
+export async function read(req, res) {
+    try {
+        // embed ports
+        const plainTask = await embedTaskPorts(req.task);
+
+        return res.status(200).json(plainTask);
+    } catch (err) {
+        return res.status(500).send(err.toString());
+    }
 }
 
 export async function update(req, res) {
@@ -182,11 +197,16 @@ export async function list(req, res) {
             .limit(limit)
             .skip(offset)
 
+        // embed ports
+        const embededTasks = await Promise.map(tasks, (task) => {
+            return embedTaskPorts(task);
+        });
+
         const count = await Task.count(query);
         
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            tasks: tasks.map((task) => task.toJSON())
+            tasks: embededTasks
         });
     } catch (err) {
         logger.error(`TaskCtrl::list() error`, err);

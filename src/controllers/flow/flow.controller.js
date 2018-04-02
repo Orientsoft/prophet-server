@@ -1,10 +1,24 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
-import { Flow } from '../../models';
+import { Flow, Task } from '../../models';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
 import { getPageOption, getPageMetadata } from '../../lib/utils';
+import { embedTaskPorts } from '../task/task.controller';
+
+async function embedFlowTasks(flow) {
+    const plainFlow = flow.toJSON();
+
+    plainFlow.tasks = await Promise.map(flow.tasks, async (taskId) => {
+        const task = await Task.findById(taskId);
+        const embededTask = await embedTaskPorts(task);
+
+        return embededTask;
+    });
+
+    return plainFlow;
+}
 
 export function flowById(req, res, next, id) {
     return Flow.findById(id).then((flow) => {
@@ -20,8 +34,15 @@ export function flowById(req, res, next, id) {
     });
 }
 
-export function read(req, res) {
-    return res.status(200).json(req.flow.toJSON());
+export async function read(req, res) {
+    try {
+        // embed tasks
+        const embededFlow = await embedFlowTasks(req.flow);
+
+        return res.status(200).json(embededFlow);
+    } catch (err) {
+        return res.status(500).send(err.toString());
+    }
 }
 
 export async function update(req, res) {
@@ -92,11 +113,18 @@ export async function list(req, res) {
             .limit(limit)
             .skip(offset);
         
+        // embed tasks
+        const embededFlows = await Promise.map(flows, async (flow) => {
+            const embedFlow = await embedFlowTasks(flow);
+
+            return embedFlow;
+        });
+
         const count = await Flow.count(query);
 
         return res.status(200).json({
             _metadata: getPageMetadata(pageOption, count),
-            flows: flows.map((flow) => flow.toJSON())
+            flows: embededFlows
         });
     } catch (err) {
         logger.error(`FlowCtrl::list() error`, err);
