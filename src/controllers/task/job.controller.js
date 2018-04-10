@@ -37,11 +37,11 @@ export function stop(req, res) {
 }
 
 export async function start(req, res) {
-    const { taskId } = req;
+    const { taskId } = req.body;
 
     try {
         const procs = await Promise.mapSeries(taskId, async function(id) {
-            const task = Task.findById(id);
+            const task = await Task.findById(id);
             if (task === undefined || task == null) {
                 logger.error(
                     `TaskCtrl::start() error`,
@@ -49,8 +49,8 @@ export async function start(req, res) {
                     id
                 );
                 return Promise.reject(new Error(
-                    JSON.stringify(errors.TASK_NOT_FOUND
-                )));
+                    JSON.stringify(errors.TASK_NOT_FOUND)
+                ));
             }
 
             return await taskService.taskStart(task);
