@@ -552,7 +552,7 @@ export const JOB_STATUS_TYPES = {
     stopped: 2,
     launching: 3,
     errored: 4,
-    one-launch-status: 5
+    'one-launch-status': 5
 };
 ```
 
@@ -610,11 +610,12 @@ jobInResponse:
 {
     taskId: ObjectId,
     status: {
-        uptime: Number,
+        uptime: Date,
         restart: Number,
-        status: Number
+        status: Number,
+        pid: Number,
     },
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date
 }
 ``` 
