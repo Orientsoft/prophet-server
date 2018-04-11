@@ -24,13 +24,10 @@ export async function jobById(req, res, next, id) {
     }
 }
 
-export function stop(req, res) {
+export async function stop(req, res) {
     const { task } = req;
 
-    return pmService.stop(task.name).then(() => {
-        task.set({ running: false });
-        task.save();
-
+    return taskService.stop(task, false).then(() => {
         return res.status(200).end();
     }).catch((err) => {
         logger.error(`TaskCtrl::stop() error`, err);
@@ -50,12 +47,19 @@ export async function start(req, res) {
                     new Error(JSON.stringify(errors.TASK_NOT_FOUND)),
                     id
                 );
+
                 return Promise.reject(new Error(
                     JSON.stringify(errors.TASK_NOT_FOUND)
                 ));
             }
 
             const proc = await taskService.taskStart(task);
+            if (proc.length === 0) {
+                return res.status(400).send(
+                    JSON.stringify(errors.PROCESS_NOT_FOUND)
+                );
+            }
+
             const resp = {
                 taskId: task._id,
                 status: {
@@ -101,6 +105,15 @@ export async function ps(req, res) {
         });
 
         const resps = procs.map((proc) => {
+            if (proc.proc.length === 0) {
+                return {
+                    taskId: proc.task._id,
+                    status: null,
+                    createdAt: proc.task.createdAt,
+                    updatedAt: proc.task.updatedAt
+                }
+            }
+
             const resp = {
                 taskId: proc.task._id,
                 status: {

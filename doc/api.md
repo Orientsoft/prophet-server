@@ -604,7 +604,10 @@ jobInRequest:
 }
 ```
 
-jobInResponse: 
+jobInResponse:  
+如果读不到进程状态:  
+GET /jobs/:jobId会返回400错误  
+GET /jobs会将读不到进程状态的job status设为null  
 
 ```js
 {
