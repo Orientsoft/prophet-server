@@ -26,6 +26,7 @@ const errors = {
     TASK_INPUT_NOT_FOUND: { code: 40300, message: '找不到输入端口' },
     TASK_OUTPUT_NOT_FOUND: { code: 40400, message: '找不到输出端口' },
     TASK_IN_FLOW: { code: 40500, message: '任务已经加入流程' },
+    PROCESS_NOT_FOUND: { code: 40600, message: '找不到进程' },
 
     FLOW_NOT_FOUND: { code: 50100, message: '找不到流程' },
     FLOW_NAME_EXISTED: { code: 50200, message: '流程名称已经被占用' },
