@@ -64,8 +64,11 @@ export async function taskStart(task) {
 export async function taskStop(task, executePostTrigger) {
     try {
         const proc = await pmService.stop(task.name);
-        
-        if (proc.pm2_env.status === 'stopped') {
+        if (proc.length === 0) {
+            return Promise.resolve();
+        }
+
+        if (proc[0].pm2_env.status === 'stopped') {
             task.running = false;
             await task.save();
     

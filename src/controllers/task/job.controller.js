@@ -27,10 +27,11 @@ export async function jobById(req, res, next, id) {
 export async function stop(req, res) {
     const { task } = req;
 
-    return taskService.stop(task, false).then(() => {
+    return taskService.taskStop(task, false).then(() => {
         return res.status(200).end();
     }).catch((err) => {
         logger.error(`TaskCtrl::stop() error`, err);
+        
         return res.status(500).send(err.toString());
     });
 }
