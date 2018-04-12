@@ -17,7 +17,8 @@ router.param('taskId', TaskCtrl.taskById);
 // job
 router.route('/jobs')
     .get(TaskCtrl.ps)
-    .post(TaskCtrl.start);
+    .post(TaskCtrl.start)
+    .delete(TaskCtrl.stopAll);
 
 router.route('/jobs/:jobId')
     .get(TaskCtrl.read) // TODO : implementation

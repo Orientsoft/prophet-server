@@ -36,6 +36,28 @@ export async function stop(req, res) {
     });
 }
 
+export async function stopAll(req, res) {
+    try {
+        await Promise.map(req.body.taskId, async (id) => {
+            const task = await Task.findById(id);
+            if (
+                task !== undefined &&
+                task != null
+            ) {
+                await taskService.taskStop(task, false);
+            }
+    
+            return true;
+        });
+
+        return res.status(200).end();
+    } catch (err) {
+        logger.error(`TaskCtrl::stopAll() error`, err);
+        
+        return res.status(500).send(err.toString());
+    }
+}
+
 export async function start(req, res) {
     const { taskId } = req.body;
 
