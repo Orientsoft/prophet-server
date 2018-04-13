@@ -112,47 +112,36 @@ export async function ps(req, res) {
     try {
         const tasks = await Task.find(query).sort({ createdAt: -1 });
 
-        let procs = await Promise.map(tasks, async (task) => {
+        const procs = await Promise.map(tasks, async (task) => {
             const proc = await pmService.describe(task.name);
 
+            if (
+                proc === undefined ||
+                proc == null ||
+                proc.length === 0
+            ) {
+                return {
+                    taskId: task._id,
+                    status: null,
+                    createdAt: task.createdAt,
+                    updatedAt: task.updatedAt
+                };
+            }
+
             return {
-                task,
-                proc
+                taskId: task._id,
+                status: {
+                    uptime: new Date(proc[0].pm2_env.pm_uptime),
+                    restart: proc[0].pm2_env.restart_time,
+                    status: CONSTS.JOB_STATUS_TYPES[proc[0].pm2_env.status],
+                    pid: proc[0].pid
+                },
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt
             };
         });
 
-        procs = procs.filter((proc) => {
-            if (proc.proc !== undefined && proc.proc != null)
-                return true;
-            return false;
-        });
-
-        const resps = procs.map((proc) => {
-            if (proc.proc.length === 0) {
-                return {
-                    taskId: proc.task._id,
-                    status: null,
-                    createdAt: proc.task.createdAt,
-                    updatedAt: proc.task.updatedAt
-                }
-            }
-
-            const resp = {
-                taskId: proc.task._id,
-                status: {
-                    uptime: new Date(proc.proc[0].pm2_env.pm_uptime),
-                    restart: proc.proc[0].pm2_env.restart_time,
-                    status: CONSTS.JOB_STATUS_TYPES[proc.proc[0].pm2_env.status],
-                    pid: proc.proc[0].pid
-                },
-                createdAt: proc.task.createdAt,
-                updatedAt: proc.task.updatedAt
-            }
-
-            return resp;
-        });
-
-        return res.status(200).json(resps);
+        return res.status(200).json(procs);
     } catch (err) {
         logger.error(`TaskCtrl::ps() error`, err);
         return res.status(500).send(err.toString());
@@ -164,7 +153,20 @@ export async function read(req, res) {
         const task = req.task;
         const proc = await pmService.describe(task.name);
 
-        const resp = {
+        if (
+            proc === undefined ||
+            proc == null ||
+            proc.length === 0
+        ) {
+            return res.status(200).json({
+                taskId: task._id,
+                status: null,
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt
+            });
+        }
+
+        return res.status(200).json({
             taskId: task._id,
             status: {
                 uptime: new Date(proc[0].pm2_env.pm_uptime),
@@ -174,9 +176,7 @@ export async function read(req, res) {
             },
             createdAt: task.createdAt,
             updatedAt: task.updatedAt
-        };
-
-        return res.status(200).json(resp);
+        });
     } catch (err) {
         logger.error(`TaskCtrl::read() error`, err);
         return res.status(500).send(err.toString());

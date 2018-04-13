@@ -6,6 +6,10 @@ const router = express.Router();
 router.route('/flows')
     .get(FlowCtrl.list)
     .post(FlowCtrl.create);
+
+router.route('/flows/:flowId/jobs')
+    .get(FlowCtrl.ps);
+
 router.route('/flows/:flowId')
     .get(FlowCtrl.read)
     .put(FlowCtrl.update)

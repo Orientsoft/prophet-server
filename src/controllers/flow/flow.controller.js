@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
 import { Flow, Task } from '../../models';
+import * as pmService from '../../services/pm2';
 import * as CONSTS from '../../consts';
 import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
@@ -20,18 +21,21 @@ async function embedFlowTasks(flow) {
     return plainFlow;
 }
 
-export function flowById(req, res, next, id) {
-    return Flow.findById(id).then((flow) => {
+export async function flowById(req, res, next, id) {
+    try {
+        const flow = await Flow.findById(id);
         if (flow) {
             req.flow = flow;
+
             return next();
         }
 
         return res.status(400).send(JSON.stringify(errors.FLOW_NOT_FOUND));
-    }).catch((err) => {
+    } catch (err) {
         logger.error(`FlowCtrl::flowById() error`, err);
+
         res.status(500).send(err.toString());
-    });
+    }
 }
 
 export async function read(req, res) {
@@ -128,6 +132,48 @@ export async function list(req, res) {
         });
     } catch (err) {
         logger.error(`FlowCtrl::list() error`, err);
+        return res.status(500).send(err.toString());
+    }
+}
+
+export async function ps(req, res) {
+    const { tasks } = req.flow;
+
+    try {
+        const procs = await Promise.map(tasks, async (id) => {
+            const task = await Task.findById(id);
+            const proc = await pmService.describe(task.name);
+
+            if (
+                proc === undefined ||
+                proc == null ||
+                proc.length === 0
+            ) {
+                return {
+                    taskId: task._id,
+                    status: null,
+                    createdAt: task.createdAt,
+                    updatedAt: task.updatedAt
+                };
+            }
+
+            return {
+                taskId: task._id,
+                status: {
+                    uptime: new Date(proc[0].pm2_env.pm_uptime),
+                    restart: proc[0].pm2_env.restart_time,
+                    status: CONSTS.JOB_STATUS_TYPES[proc[0].pm2_env.status],
+                    pid: proc[0].pid
+                },
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt
+            };
+        });
+
+        return res.status(200).json(procs);
+    } catch (err) {
+        logger.error(`FlowCtrl::ps() error`, err);
+
         return res.status(500).send(err.toString());
     }
 }
