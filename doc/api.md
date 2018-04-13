@@ -639,7 +639,7 @@ testInResponse:
 | GET | /tasks/:taskId | | | taskInResponse | 获取指定任务 |
 | PUT | /tasks/:taskId | | taskInRequest | taskInResponse | 更改指定任务 |
 | DELETE | /tasks/:taskId | | | | 删除指定任务 |
-| GET | /jobs | taskId, name, input, output, type, running | | [ jobInResponse ] | 进程列表 |
+| GET | /jobs | name, input, output, type, running | | [ jobInResponse ] | 进程列表 |
 | POST | /jobs | | jobInRequest | [ jobInResponse ] | 启动任务（组） |
 | DELETE | /jobs | jobInRequest | | | 停止任务（组） |
 | GET | /jobs/:taskId | | | jobInResponse | 获取指定进程详情 |
@@ -752,6 +752,7 @@ flowResponse:
 | GET | /flows | name | | flowResponse | 流程列表 |
 | POST | /flows | | flowInRequest | flowInResponse | 创建流程 |
 | GET | /flows/:flowId | | | flowInResponse | 获取指定流程 |
+| GET | /flows/:flowId/jobs | | | [ jobInResponse ] | 获取指定流程的进程状态 |
 | PUT | /flows/:flowId | | flowInRequest | flowInResponse | 更改指定流程 |
 | DELETE | /flows/:flowId | | | | 删除指定流程 |
 
