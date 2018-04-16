@@ -63,15 +63,15 @@ export async function taskStart(task) {
 
 export async function taskStop(task, executePostTrigger) {
     try {
+        task.running = false;
+        await task.save();
+
         const proc = await pmService.stop(task.name);
         if (proc.length === 0) {
-            return Promise.resolve();
+            return null;
         }
 
         if (proc[0].pm2_env.status === 'stopped') {
-            task.running = false;
-            await task.save();
-    
             if (executePostTrigger) {
                 const postTrigger = await Trigger.findOne({
                     type: CONSTS.TRIGGER_TYPES.POST,
@@ -84,8 +84,10 @@ export async function taskStop(task, executePostTrigger) {
             }
         }
 
-        return Promise.resolve(proc);
+        return proc;
     } catch (err) {
-        return Promise.reject(err);
+        logger.error(err.stack);
+
+        return null;
     }
 }
