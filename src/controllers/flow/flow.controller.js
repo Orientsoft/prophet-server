@@ -56,8 +56,12 @@ export async function update(req, res) {
 
     try {
         if (name !== flow.name) {
-            const existedFlow = await Flow.find({ name });
-            if (existedFlow.length !== 0) {
+            const existedFlow = await Flow.findOne({ name });
+            if (
+                existedFlow !== undefined &&
+                existedFlow != null &&
+                existedFlow._id.toString() !== req.flow._id.toString()
+            ) {
                 return res.status(400).send(JSON.stringify(errors.FLOW_NAME_EXISTED));
             }
         }

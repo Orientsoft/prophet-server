@@ -31,7 +31,11 @@ export async function update(req, res) {
     try {
         if (name !== undefined && name != null && name != port.name) {
             const existedPort = await Port.findOne({ name });
-            if (existedPort) {
+            if (
+                existedPort !== undefined &&
+                existedPort != null &&
+                existedPort._id.toString() !== req.port._id.toString()
+            ) {
                 return res.status(400)
                     .send(JSON.stringify(errors.PORT_NAME_EXISTED));
             }

@@ -66,8 +66,12 @@ export async function update(req, res) {
 
     try {
         if (name !== undefined && name != null && name != '') {
-            const existedTask = await Task.find({ name });
-            if (existedTask !== undefined && existedTask != null) {
+            const existedTask = await Task.findOne({ name });
+            if (
+                existedTask !== undefined &&
+                existedTask != null &&
+                existedTask._id.toString() !== req.task._id.toString()
+            ) {
                 return res.status(400).send(JSON.stringify(errors.TASK_NAME_EXISTED));
             }
         }
@@ -86,22 +90,26 @@ export async function update(req, res) {
             }
         }
 
-        const running = task.running;
-
-        // stop old job
-        if (running) {
-            await pmService.stop(task.name);
-        }
-
         _.assignIn(task, newTask);
         const updatedTask = await task.save();
 
-        // start new job
-        if (running) {
-            await taskService.taskStart(updatedTask);
-        }
+        const running = task.running;
 
-        return res.status(200).json(updatedTask.toJSON());
+        try {
+            // stop old job
+            if (running) {
+                await pmService.stop(task.name);
+            }
+
+            // start new job
+            if (running) {
+                await taskService.taskStart(updatedTask);
+            }
+        } catch (err) {
+            logger.error('TaskCtrl:update() restart job error', err.stack);
+        } finally {
+            return res.status(200).json(updatedTask.toJSON());
+        }
     } catch (err) {
         logger.error(`TaskCtrl::update() error`, err);
         return res.status(500).send(err.toString());
