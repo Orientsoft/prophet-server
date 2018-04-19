@@ -5,7 +5,7 @@ import * as pmService from '../../services/pm2';
 import * as triggerService from '../../services/trigger';
 import * as taskService from '../../services/task';
 import * as CONSTS from '../../consts';
-import { errors } from '../../lib/errors';
+import errors from '../../lib/errors';
 import { logger } from '../../lib/logger';
 import { getPageOption, getPageMetadata } from '../../lib/utils';
 
