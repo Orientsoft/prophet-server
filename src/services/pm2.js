@@ -1,5 +1,6 @@
 import Promise from 'bluebird';
 import pm2 from 'pm2';
+import config from '../config';
 
 export const connect = () => {
     return new Promise((resolve, reject) => {
@@ -26,7 +27,15 @@ export const register = (name, path, cron, params) => {
 export const start = (name, path, cron, params) => {
     return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
-            pm2.start({name, script: path, cron, args: params}, (err, proc) => {
+            pm2.start(
+                {
+                    name,
+                    script: path,
+                    cron,
+                    args: params,
+                    interpreter: config.pythonInterpreter
+                },
+                (err, proc) => {
                 if (err) {
                     reject(err);
                 }

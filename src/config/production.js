@@ -12,4 +12,6 @@ module.exports = {
     sessionName: process.env.PS_SESSION_NAME,
 
     esUrl: process.env.PS_ES_URL,
+    nodeInterpreter: process.env.PS_NODE_INTERPRETER,
+    pythonInterpreter: process.env.PS_PYTHON_INTERPRETER,
 };
