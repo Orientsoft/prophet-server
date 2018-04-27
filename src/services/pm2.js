@@ -26,7 +26,6 @@ export const register = (name, path, cron, params) => {
 }
 
 export const start = (name, path, cron, params) => {
-    console.log(params)
     return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.start(
