@@ -1,5 +1,6 @@
 import Promise from 'bluebird';
 import pm2 from 'pm2';
+import NodePath from 'path';
 import config from '../config';
 
 export const connect = () => {
@@ -25,14 +26,22 @@ export const register = (name, path, cron, params) => {
 }
 
 export const start = (name, path, cron, params) => {
+    console.log(params)
     return connect().then((pm2) => {
         return new Promise((resolve, reject) => {
             pm2.start(
                 {
                     name,
                     script: path,
+                    cwd: NodePath.dirname(path),
                     cron,
-                    args: params,
+                    args: params.reduce((prev, curr, index) => {
+                        if (index == 0) {
+                            return curr;
+                        } else {
+                            return prev + ' ' + curr;
+                        }
+                    }, ''),
                     interpreter: config.pythonInterpreter
                 },
                 (err, proc) => {
