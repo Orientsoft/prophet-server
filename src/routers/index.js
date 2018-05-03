@@ -10,6 +10,7 @@ import settingsRouter from './settings';
 import structuresRouter from './structures';
 import hostRouter from './hosts';
 import alertRouter from './alerts';
+import logRouter from './logs';
 
 const routers = express.Router();
 
@@ -24,6 +25,7 @@ routers.use(alertRouter);
 routers.use(userRouter);
 routers.use(settingsRouter);
 routers.use(structuresRouter);
+routers.use(logRouter);
 
 // testing route
 routers.route('/greeting').get((req, res) => {

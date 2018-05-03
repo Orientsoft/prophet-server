@@ -60,3 +60,6 @@ export const STRUCTURE_COLLECTION = 'structures';
 export const USER_COOKIE_TOKEN_KEY = 'AiDefenderKey';
 
 export const WATCHDOG_INTERVAL = 5000;
+
+export const PM2_LOG_BASE_PATH = '~/.pm2/logs';
+export const MAX_LOG_LINES = 100;

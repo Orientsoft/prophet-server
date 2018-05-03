@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import pm2 from 'pm2';
 import NodePath from 'path';
 import config from '../config';
+import * as CONSTS from '../consts';
 
 export const connect = () => {
     return new Promise((resolve, reject) => {
@@ -41,7 +42,9 @@ export const start = (name, path, cron, params) => {
                             return prev + ' ' + curr;
                         }
                     }, ''),
-                    interpreter: config.pythonInterpreter
+                    interpreter: config.pythonInterpreter,
+                    output: `${CONSTS.PM2_LOG_BASE_PATH}/${name}.log`,
+                    error: `${CONSTS.PM2_LOG_BASE_PATH}/${name}.log`,
                 },
                 (err, proc) => {
                 if (err) {
@@ -129,6 +132,22 @@ export const describe = (name) => {
                 }
 
                 resolve(proc);
+            });
+        });
+    }).finally(() => {
+        pm2.disconnect();
+    });
+}
+
+export const flush = (process) => {
+    return connect().then((pm2) => {
+        return new Promise((resolve, reject) => {
+            pm2.flush(process, (err, result) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(result);
             });
         });
     }).finally(() => {

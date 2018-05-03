@@ -36,6 +36,7 @@
     "nodemon": "^1.12.7",
     "path": "^0.12.7",
     "pm2": "^2.9.3",
+    "read-last-lines": "^1.4.0",
     "redis": "^2.8.0",
     "serve-favicon": "^2.4.5",
     "winston": "^2.4.0"
