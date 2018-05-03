@@ -1,2 +1,2 @@
 # prophet-server
-AI flow control backend
+AI flow control backend.
