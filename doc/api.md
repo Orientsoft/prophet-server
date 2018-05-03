@@ -809,3 +809,19 @@ statusResponse:
 | ------ | ---- | ----- | ------- | -------- | ------ |
 | GET | /status | source, code, level, from, to | | statusResponse | 状态列表 |
 | POST | /status | | statusInRequest | statusInResponse | 创建状态 |
+
+---  
+## 进程日志（logs）  
+
+从PM2日志文件中读取需要的进程日志。   
+
+logInResponse:
+```js
+{
+    lines: [ String ]
+}
+```
+
+| method | path | query | request | response | remark |
+| ------ | ---- | ----- | ------- | -------- | ------ |
+| GET | /logs/:jobId | | | logInResponse | 日志数据 |
