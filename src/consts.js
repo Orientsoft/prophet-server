@@ -10,6 +10,13 @@ export const PORT_TYPES = {
     ES_INDEX: 3
 };
 
+export const PORT_TYPES_LIST = [
+    'Redis_Channel',
+    'NSQ_Queue',
+    'MongoDB_Collection',
+    'ES_Index'
+]
+
 export const STATUS_LEVELS = {
     DEBUG: 0,
     LOG: 1,

@@ -24,11 +24,13 @@ export async function taskStart(task) {
         }
 
         const internalParams = [
-            `--input-type ${inputPort.type}`,
-            `--input-name ${inputPort.name}`,
-            `--output-type ${outputPort.type}`,
-            `--output-name ${outputPort.name}`
+            `--input_type ${CONSTS.PORT_TYPES_LIST[inputPort.type]}`,
+            `--input_name ${inputPort.name}`,
+            `--output_type ${CONSTS.PORT_TYPES_LIST[outputPort.type]}`,
+            `--output_name ${outputPort.name}`
         ];
+
+        console.log(_.concat(task.params, internalParams));
     
         // execute pre-trigger
         const preTrigger = await Trigger.findOne({
