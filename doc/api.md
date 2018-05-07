@@ -561,6 +561,8 @@ taskInRequest:
 ```js
 {
     name: String,
+    metric: String,
+    description: String,
     input: ObjectId,
     output: ObjectId,
     script: String,
@@ -576,6 +578,8 @@ taskInResponse:
 ```js
 {
     name: String,
+    metric: String,
+    description: String,
     input: ObjectId,
     output: ObjectId,
     script: String,

@@ -27,10 +27,9 @@ export async function taskStart(task) {
             `--input_type ${CONSTS.PORT_TYPES_LIST[inputPort.type]}`,
             `--input_name ${inputPort.name}`,
             `--output_type ${CONSTS.PORT_TYPES_LIST[outputPort.type]}`,
-            `--output_name ${outputPort.name}`
+            `--output_name ${outputPort.name}`,
+            `--metric_name ${task.metric}`,
         ];
-
-        console.log(_.concat(task.params, internalParams));
     
         // execute pre-trigger
         const preTrigger = await Trigger.findOne({

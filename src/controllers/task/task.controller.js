@@ -45,6 +45,8 @@ export async function update(req, res) {
     const { task, body } = req;
     const {
         name,
+        metric,
+        description,
         input,
         output,
         script,
@@ -55,6 +57,8 @@ export async function update(req, res) {
     } = body;
     const newTask = _.pickBy({
         name,
+        metric,
+        description,
         input,
         output,
         script,
@@ -174,6 +178,8 @@ export async function create(req, res) {
 
         const task = await Task.create({
             name,
+            metric: req.body.metric || '',
+            description: req.body.description || '',
             input,
             output,
             script: req.body.script || '',
