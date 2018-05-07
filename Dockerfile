@@ -1,4 +1,4 @@
-FROM registry.orientsoft.cn/orientsoft/node:6.11.1-alpine
+FROM registry.orientsoft.cn/orientsoft/pynode:latest
 MAINTAINER Timothy <yexiaozhou@orientsoft.cn>
 
 ADD dist /propher-server/dist
