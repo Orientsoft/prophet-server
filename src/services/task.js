@@ -29,6 +29,7 @@ export async function taskStart(task) {
             `--output_type ${CONSTS.PORT_TYPES_LIST[outputPort.type]}`,
             `--output_name ${outputPort.name}`,
             `--metric_name ${task.metric}`,
+            `--task_name ${task.name}`,
         ];
     
         // execute pre-trigger
