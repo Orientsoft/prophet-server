@@ -3,6 +3,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+import { taskInit } from './services/task';
 import * as triggerService from './services/trigger';
 import { startFeeding } from './services/watchdog';
 import * as mongoose from './lib/mongoose';
@@ -23,6 +24,9 @@ startFeeding();
 
 // MongoDB Connection
 mongoose.connect();
+
+// start all running tasks
+taskInit();
 
 // Redis Connection
 // redis.connect();

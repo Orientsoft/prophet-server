@@ -1,11 +1,26 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
-import { Port, Trigger } from '../models';
+import { Task, Port, Trigger } from '../models';
 import * as pmService from './pm2';
 import * as triggerService from './trigger';
 import { logger } from '../lib/logger';
 import * as CONSTS from '../consts';
 import errors from '../lib/errors';
+
+export async function taskInit() {
+    try {
+        const tasks = await Task.find();
+        await Promise.mapSeries(tasks, (task) => {
+            if (task.running) {
+                return taskStart(task);
+            }
+
+            return Promise.resolve();
+        });
+    } catch (err) {
+        logger.error(err.stack);
+    }
+}
 
 export async function taskStart(task) {
     try {
