@@ -11,7 +11,7 @@ import { embedTaskPorts } from '../task/task.controller';
 async function embedFlowTasks(flow) {
     const plainFlow = flow.toJSON();
 
-    plainFlow.tasks = await Promise.map(flow.tasks, async (taskId) => {
+    plainFlow.tasks = await Promise.mapSeries(flow.tasks, async (taskId) => {
         const task = await Task.findById(taskId);
         const embededTask = await embedTaskPorts(task);
 
@@ -122,7 +122,7 @@ export async function list(req, res) {
             .skip(offset);
         
         // embed tasks
-        const embededFlows = await Promise.map(flows, async (flow) => {
+        const embededFlows = await Promise.mapSeries(flows, async (flow) => {
             const embedFlow = await embedFlowTasks(flow);
 
             return embedFlow;
@@ -144,7 +144,7 @@ export async function ps(req, res) {
     const { tasks } = req.flow;
 
     try {
-        const procs = await Promise.map(tasks, async (id) => {
+        const procs = await Promise.mapSeries(tasks, async (id) => {
             const task = await Task.findById(id);
             const proc = await pmService.describe(task.name);
 
@@ -176,7 +176,7 @@ export async function ps(req, res) {
 
         return res.status(200).json(procs);
     } catch (err) {
-        logger.error(`FlowCtrl::ps() error`, err);
+        logger.error(`FlowCtrl::ps() error`, err.stack);
 
         return res.status(500).send(err.toString());
     }

@@ -38,7 +38,7 @@ export async function stop(req, res) {
 
 export async function stopAll(req, res) {
     try {
-        await Promise.map(req.body.taskId, async (id) => {
+        await Promise.mapSeries(req.body.taskId, async (id) => {
             const task = await Task.findById(id);
             if (
                 task !== undefined &&
@@ -112,7 +112,7 @@ export async function ps(req, res) {
     try {
         const tasks = await Task.find(query).sort({ createdAt: -1 });
 
-        const procs = await Promise.map(tasks, async (task) => {
+        const procs = await Promise.mapSeries(tasks, async (task) => {
             const proc = await pmService.describe(task.name);
 
             if (

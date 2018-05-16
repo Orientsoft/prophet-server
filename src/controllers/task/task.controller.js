@@ -212,7 +212,7 @@ export async function list(req, res) {
             .skip(offset)
 
         // embed ports
-        const embededTasks = await Promise.map(tasks, (task) => {
+        const embededTasks = await Promise.mapSeries(tasks, (task) => {
             return embedTaskPorts(task);
         });
 

@@ -8,7 +8,10 @@ router.route('/flows')
     .post(FlowCtrl.create);
 
 router.route('/flows/:flowId/jobs')
-    .get(FlowCtrl.ps);
+    .get(
+        FlowCtrl.flowById,
+        FlowCtrl.ps
+    );
 
 router.route('/flows/:flowId')
     .get(FlowCtrl.read)
