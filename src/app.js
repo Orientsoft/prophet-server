@@ -3,6 +3,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+import redis from 'redis';
 import { taskInit } from './services/task';
 import * as triggerService from './services/trigger';
 import { startFeeding } from './services/watchdog';
@@ -32,18 +33,16 @@ taskInit();
 // redis.connect();
 
 // Express MongoDB session storage
-/*
 app.use(session({
     saveUninitialized: true,
     resave: true,
     secret: config.sessionSecret,
     store: new RedisStore({
-        client: redis.connection,
+        client: redis.createClient(config.redis.port, config.redis.host),
     }),
     cookie: config.sessionCookie,
     name: config.sessionName,
 }));
-*/
 
 // mount passport middleware
 // passportRegister(app);

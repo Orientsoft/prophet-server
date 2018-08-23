@@ -10,6 +10,9 @@ router.route('/user')
 router.route('/user/login')
     .post(UserCtrl.login)
 
+router.route('/user/register')
+    .post(UserCtrl.register)
+
 router.route('/user/logout')
     .post(UserCtrl.logout)
 

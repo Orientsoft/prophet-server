@@ -8,7 +8,7 @@ const { connection } = mongoose;
 
 function connect() {
     return new Promise((resolve, reject) => {
-        mongoose.connect(config.mongoURL, (err) => {
+        mongoose.connect(config.mongoURL, { useMongoClient: true }, (err) => {
             if (err) {
                 logger.error('Please make sure Mongodb is installed and running!', err);
                 return reject(err);
