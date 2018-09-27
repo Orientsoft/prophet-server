@@ -18,7 +18,9 @@ import config from './config';
 const app = express();
 const RedisStore = require('connect-redis')(session);
 
-app.use(cors());
+app.use(cors({
+  credentials: true
+}));
 
 // watchdog
 startFeeding();
