@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -16,6 +17,8 @@ import config from './config';
 
 const app = express();
 const RedisStore = require('connect-redis')(session);
+
+app.use(cors());
 
 // watchdog
 startFeeding();
