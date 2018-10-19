@@ -73,7 +73,13 @@ const menu_data = [
         icon: 'sync',
         route: '/flows',
     },
-]
+];
+const roleMenu = {
+  id: '2',
+  name: '角色管理',
+  icon: 'usergroup-add',
+  route: '/roles',
+};
 
 const connect = MongoClient.connect(config.mongoURL);
 
@@ -89,18 +95,32 @@ export async function menuList(req, res) {
         const structureList = await connection.db('prophet-server').collection(CONSTS.STRUCTURE_COLLECTION).find({}).sort({ createdAt: 1 }).toArray()
         const user = await User.findOne({ _id: req.session.userId });
 
+        const menus = [].concat(menu_data);
+        if (user.role === RoleType.ADMIN || user.role === RoleType.DEVELOPER) {
+          menus.push(roleMenu);
+        }
         if (structureList && structureList.length > 0) {
             let startId = parseInt((menu_data[menu_data.length - 1]).id, 10) + 1
             const sysQueryChildMenus = structureList.map((item) => {
                 if (user.role === RoleType.DEFAULT && item.owner !== user.id) {
                     return null;
                 }
-                return { id: startId++, bpid: sysQueryMenuId, mpid: sysQueryMenuId, name: item.name, icon: 'eye-o', route: `/systemquery/${item._id}` };
+                return { id: startId++, bpid: sysQueryMenuId, mpid: sysQueryMenuId, name: item.name, icon: 'eye-o', route: `/systemquery/${item._id}`, stid: item._id, owner: item.owner };
             }).filter(item => item);
-            // console.log(menu_data.concat(sysQueryChildMenus))
-            res.status(200).json(menu_data.concat(sysQueryChildMenus));
+            user.menus.forEach(menu => {
+                sysQueryChildMenus.push({
+                    id: startId++,
+                    bpid: sysQueryMenuId,
+                    mpid: sysQueryMenuId,
+                    name: menu.name,
+                    icon: 'eye-o',
+                    route: `/systemquery/${menu.stid}`,
+                    stid: menu.stid,
+                });
+            });
+            res.status(200).json(menus.concat(sysQueryChildMenus));
         } else {
-            res.status(200).json(menu_data);
+            res.status(200).json(menus);
         }
     } catch (err) {
         logger.error(`Failed to fetch menu info. ${err.toString()}`);

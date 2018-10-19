@@ -47,7 +47,7 @@ export async function register(req, res) {
     if (user) {
         return res.json({ success: false, message: '用户名已存在' });
     }
-    const data = { username, password };
+    const data = { username, password, menus: [] };
     
     if (username.length > 2) {
         if (/^@[^@]+@$/.test(username)) {
@@ -72,7 +72,7 @@ export async function info(req, res) {
         const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
         const response = { success: false };
         if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
-            return res.status(200).send({ message: 'Not Login' });
+            return res.status(403).send({ message: 'Not Login' });
         }
         const token = JSON.parse(cookies[CONSTS.USER_COOKIE_TOKEN_KEY]);
         if (token) {
@@ -104,6 +104,108 @@ export async function logout(req, res) {
         res.status(200).end();
     } catch (err) {
         logger.error(`Failed to logout. ${err.toString()}`);
+        return res.status(500).send(err.toString());
+    }
+}
+
+/**
+ * 获取所有普通权限用户
+ */
+export async function userList(req, res) {
+    try {
+        const cookie = req.headers.cookie || '';
+        const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+        const response = { success: false };
+        if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
+            return res.status(403).send({ message: 'Not Login' });
+        }
+        const users = await User.find({ role: RoleType.DEFAULT });
+        response.success = true;
+        response.users = users.map(user => {
+          return { _id: user._id, username: user.username, role: user.role, createdAt: user.createdAt, menus: user.menus };
+        });
+        res.json(response);
+    } catch (err) {
+        logger.error(`Failed to fetch user list. ${err.toString()}`);
+        return res.status(500).send(err.toString());
+    }
+}
+
+/**
+ * 删除用户
+ */
+export async function remove(req, res) {
+    try {
+        const cookie = req.headers.cookie || '';
+        const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+        const response = { success: false };
+        if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
+            return res.status(403).send({ message: 'Not Login' });
+        }
+        const token = JSON.parse(cookies[CONSTS.USER_COOKIE_TOKEN_KEY]);
+        if (token) {
+            response.success = token.deadline > new Date().getTime();
+        }
+        let message = '';
+        if (response.success) {
+            const userItem = await User.findOne({ _id: token.id });
+            if (userItem) {
+                const role = userItem.toJSON().role;
+                if (role == RoleType.ADMIN || role == RoleType.DEVELOPER) {
+                    await User.deleteOne({ _id: req.body.id });
+                    response.success = true;
+                    return res.json(response);
+                }
+            } else {
+              message = 'User not found';
+            }
+        } else {
+          message = 'Invalid cookie';
+        }
+        response.message = message;
+        res.status(400).json(response);
+    } catch (err) {
+        logger.error(`Failed to fetch user list. ${err.toString()}`);
+        return res.status(500).send(err.toString());
+    }
+}
+
+/**
+ * 菜单授权
+ */
+export async function setMenus(req, res) {
+    try {
+        const cookie = req.headers.cookie || '';
+        const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+        const response = { success: false };
+        if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
+            return res.status(403).send({ message: 'Not Login' });
+        }
+        const token = JSON.parse(cookies[CONSTS.USER_COOKIE_TOKEN_KEY]);
+        if (token) {
+            response.success = token.deadline > new Date().getTime();
+        }
+        const { id, menus = [] } = req.body;
+        let message = '';
+        if (response.success) {
+            const userItem = await User.findOne({ _id: token.id });
+            if (userItem) {
+                const role = userItem.toJSON().role;
+                if (role == RoleType.ADMIN || role == RoleType.DEVELOPER) {
+                    await User.updateOne({ _id: id }, { '$set': { menus } }, { upsert: true });
+                    response.success = true;
+                    return res.json(response);
+                }
+            } else {
+              message = 'User not found';
+            }
+        } else {
+          message = 'Invalid cookie';
+        }
+        response.message = message;
+        res.status(400).json(response);
+    } catch (err) {
+        logger.error(`Failed to fetch user list. ${err.toString()}`);
         return res.status(500).send(err.toString());
     }
 }
