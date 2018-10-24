@@ -8,17 +8,11 @@ import User, { RoleType } from '../../models/user';
 
 //先写死，以后从数据库中获取
 const menu_data = [
-    {
-        id: '1',
-        icon: 'dashboard',
-        name: '系统拓扑',
-        route: '/dashboard',
-    },
     // {
-    //   id: '2',
-    //   name: '单数据查询',
-    //   icon: 'to-top',
-    //   route: '/singlequery',
+    //     id: '1',
+    //     icon: 'dashboard',
+    //     name: '系统拓扑',
+    //     route: '/dashboard',
     // },
     {
         id: '3',
@@ -26,6 +20,26 @@ const menu_data = [
         icon: 'bar-chart',
         // route: '/systemquery',
     },
+];
+const roleMenu = {
+  id: '2',
+  name: '角色管理',
+  icon: 'usergroup-add',
+  route: '/roles',
+};
+const subMenu_data = [
+    // {
+    //   id: '2',
+    //   name: '单数据查询',
+    //   icon: 'to-top',
+    //   route: '/singlequery',
+    // },
+    // {
+    //     id: '3',
+    //     name: '系统查询',
+    //     icon: 'bar-chart',
+    //     // route: '/systemquery',
+    // },
     {
         id: '4',
         name: '数据源设置',
@@ -73,13 +87,8 @@ const menu_data = [
         icon: 'sync',
         route: '/flows',
     },
+    roleMenu,
 ];
-const roleMenu = {
-  id: '2',
-  name: '角色管理',
-  icon: 'usergroup-add',
-  route: '/roles',
-};
 
 const connect = MongoClient.connect(config.mongoURL);
 
@@ -97,10 +106,10 @@ export async function menuList(req, res) {
 
         const menus = [].concat(menu_data);
         if (user.role === RoleType.ADMIN || user.role === RoleType.DEVELOPER) {
-          menus.push(roleMenu);
+          subMenu_data.forEach(m => menus.push(m));
         }
         if (structureList && structureList.length > 0) {
-            let startId = parseInt((menu_data[menu_data.length - 1]).id, 10) + 1
+            let startId = 33 // parseInt((menu_data[menu_data.length - 1]).id, 10) + 1
             const sysQueryChildMenus = structureList.map((item) => {
                 if (user.role === RoleType.DEFAULT && item.owner !== user.id) {
                     return null;
@@ -108,15 +117,21 @@ export async function menuList(req, res) {
                 return { id: startId++, bpid: sysQueryMenuId, mpid: sysQueryMenuId, name: item.name, icon: 'eye-o', route: `/systemquery/${item._id}`, stid: item._id, owner: item.owner };
             }).filter(item => item);
             user.menus.forEach(menu => {
-                sysQueryChildMenus.push({
-                    id: startId++,
-                    bpid: sysQueryMenuId,
-                    mpid: sysQueryMenuId,
-                    name: menu.name,
-                    icon: 'eye-o',
-                    route: `/systemquery/${menu.stid}`,
-                    stid: menu.stid,
-                });
+                const sub = subMenu_data.find(m => m.id == menu.id);
+                if (sub) {
+                  sysQueryChildMenus.push(sub);
+                  subMenu_data.filter(m => m.mpid == sub.id).forEach(m => sysQueryChildMenus.push(m))
+                } else {
+                  sysQueryChildMenus.push({
+                      id: startId++,
+                      bpid: sysQueryMenuId,
+                      mpid: sysQueryMenuId,
+                      name: menu.name,
+                      icon: 'eye-o',
+                      route: `/systemquery/${menu.stid}`,
+                      stid: menu.stid,
+                  });
+                }
             });
             res.status(200).json(menus.concat(sysQueryChildMenus));
         } else {
