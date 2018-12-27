@@ -1,21 +1,22 @@
 import express from 'express';
 import StructuresCtrl from '../controllers/structures';
+import UserCtrl from '../controllers/user';
 
 const router = express.Router();
 
 // structures
 router.route('/structures')
-    .get(StructuresCtrl.structrueList)
-    .post(StructuresCtrl.create)
+    .get(UserCtrl.requireLogin, StructuresCtrl.structrueList)
+    .post(UserCtrl.requireLogin, StructuresCtrl.create)
 
 router.route('/structures/:structureId')
     .get(StructuresCtrl.read)
     .put(StructuresCtrl.update)
     .delete(StructuresCtrl.remove)
 
-router.param('structureId', StructuresCtrl.getStructureById)
+router.param('structureId', UserCtrl.requireLogin, StructuresCtrl.getStructureById)
 
 router.route('/meta-structure')
-    .get(StructuresCtrl.structrueMetaData)
+    .get(UserCtrl.requireLogin, StructuresCtrl.structrueMetaData)
 
 export default router;
