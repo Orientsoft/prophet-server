@@ -10,6 +10,8 @@ const errors = {
     LOGIN_FAILED: { code: 20004, message: '登录失败, 用户名或密码错误' },
     LOGIN_INTERNAL_ERROR: { code: 20005, message: '登录失败, 请稍后再试' },
     WRONG_PASSWORD: { code: 20006, message: '密码错误' }, // 已登录用户，修改密码需要输入原密码
+    USER_NOT_FOUND: { code: 20008, message: '找不到用户' },
+    ADMIN_REQUIRED: { code: 20010, message: '权限不足' },
     
     VALIDATION_ERROR: {
         code: 20100, message: '验证错误', model: '', paths: []

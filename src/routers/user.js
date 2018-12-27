@@ -5,15 +5,15 @@ const router = express.Router();
 
 // user
 router.route('/user')
-    .get(UserCtrl.info)
+    .get(UserCtrl.info);
 
 router.route('/user/login')
-    .post(UserCtrl.login)
+    .post(UserCtrl.login);
 
 router.route('/user/register')
-    .post(UserCtrl.register)
+    .post(UserCtrl.register);
 
 router.route('/user/logout')
-    .post(UserCtrl.logout)
+    .post(UserCtrl.logout);
 
 export default router;

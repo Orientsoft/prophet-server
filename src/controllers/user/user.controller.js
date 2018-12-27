@@ -6,6 +6,57 @@ import errors from '../../lib/errors';
 import config from '../../config';
 import User, { RoleType } from '../../models/user';
 
+export async function requireLogin(req, res, next) {
+    try {
+        if (req.session.userId === undefined || req.session.userId == null) {
+            return res.status(400)
+                .send(JSON.stringify(errors.UNAUTHORIZED));
+        }
+
+        const user = await User.findById(req.session.userId);
+
+        if (user === undefined || user == null) {
+            res.clearCookie(CONSTS.USER_COOKIE_TOKEN_KEY);
+            delete req.session['userId'];
+
+            return res.status(400)
+                .send(JSON.stringify(errors.USER_NOT_FOUND));
+        }
+
+        return next();
+    } catch (err) {
+        logger.error(`UserControl::requireLogin() error`, err);
+        return res.status(500).send(err.toString());
+    }
+}
+
+export async function requireAdmin(req, res, next) {
+    try {
+        if (req.session.userId === undefined || req.session.userId == null) {
+            return res.status(400)
+                .send(JSON.stringify(errors.UNAUTHORIZED));
+        }
+
+        const user = await User.findById(req.session.userId);
+
+        if (user === undefined || user == null) {
+            res.clearCookie(CONSTS.USER_COOKIE_TOKEN_KEY);
+            delete req.session['userId'];
+            
+            return res.status(400)
+                .send(JSON.stringify(errors.USER_NOT_FOUND));
+        } else if (user.role === RoleType.DEFAULT) {
+            return res.status(400)
+                .send(JSON.stringify(errors.ADMIN_REQUIRED));
+        }
+
+        return next();
+    } catch (err) {
+        logger.error(`UserControl::requireAdmin() error`, err);
+        return res.status(500).send(err.toString());
+    }
+}
+
 /**
 import { TestScheduler } from 'rx';
  * 用户登陆

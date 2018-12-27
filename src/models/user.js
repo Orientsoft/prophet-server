@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 export const RoleType = {
     ADMIN: 1,
     DEFAULT: 2,

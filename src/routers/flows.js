@@ -1,10 +1,11 @@
 import express from 'express';
 import FlowCtrl from '../controllers/flow';
+import UserCtrl from '../controllers/user';
 
 const router = express.Router();
 
 router.route('/flows')
-    .get(FlowCtrl.list)
+    .get(UserCtrl.requireAdmin, FlowCtrl.list)
     .post(FlowCtrl.create);
 
 router.route('/flows/:flowId/jobs')
