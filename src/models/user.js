@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String },
     createdAt: { type: Date, default: Date.now },
     role: { type: Number, default: RoleType.DEFAULT },
+    menus: { type: [] }
 }, { collection: 'users' });
 
 userSchema.methods.validatePassword = function validatePassword(password) {

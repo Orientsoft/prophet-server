@@ -7,6 +7,15 @@ const router = express.Router();
 router.route('/user')
     .get(UserCtrl.requireLogin, UserCtrl.info);
 
+router.route('/user/list')
+    .get(UserCtrl.userList)
+
+router.route('/user/remove')
+    .post(UserCtrl.remove)
+
+router.route('/user/setMenus')
+    .post(UserCtrl.setMenus)
+
 router.route('/user/login')
     .post(UserCtrl.login);
 
