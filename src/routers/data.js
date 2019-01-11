@@ -13,6 +13,6 @@ router.route('/data/:dataId')
     .get(DataCtrl.read)
     .put(DataCtrl.update)
     .delete(DataCtrl.remove);
-router.param('dataId', UserCtrl.requireLogin, DataCtrl.dataById);
+router.param('dataId', DataCtrl.dataById, UserCtrl.requireLogin);
 
 export default router;

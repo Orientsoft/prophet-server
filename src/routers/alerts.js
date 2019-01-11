@@ -11,6 +11,6 @@ router.route('/alerts/:alertId')
     .get(AlertCtrl.read)
     .put(AlertCtrl.update)
     .delete(AlertCtrl.remove);
-router.param('alertId', UserCtrl.requireLogin, AlertCtrl.alertById);
+router.param('alertId', AlertCtrl.alertById, UserCtrl.requireLogin);
 
 export default router;

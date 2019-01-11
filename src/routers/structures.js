@@ -14,7 +14,7 @@ router.route('/structures/:structureId')
     .put(StructuresCtrl.update)
     .delete(StructuresCtrl.remove)
 
-router.param('structureId', UserCtrl.requireLogin, StructuresCtrl.getStructureById)
+router.param('structureId', StructuresCtrl.getStructureById, UserCtrl.requireLogin)
 
 router.route('/meta-structure')
     .get(UserCtrl.requireLogin, StructuresCtrl.structrueMetaData)

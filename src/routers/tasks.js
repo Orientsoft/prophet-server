@@ -13,7 +13,7 @@ router.route('/tasks/:taskId')
     .get(TaskCtrl.read)
     .put(TaskCtrl.update)
     .delete(TaskCtrl.remove);
-router.param('taskId', UserCtrl.requireLogin, TaskCtrl.taskById);
+router.param('taskId', TaskCtrl.taskById, UserCtrl.requireLogin);
 
 // job
 router.route('/jobs')
@@ -24,6 +24,6 @@ router.route('/jobs')
 router.route('/jobs/:jobId')
     .get(TaskCtrl.read) // TODO : implementation
     .delete(TaskCtrl.stop);
-router.param('jobId', UserCtrl.requireLogin, TaskCtrl.jobById);
+router.param('jobId', TaskCtrl.jobById, UserCtrl.requireLogin);
 
 export default router;

@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.route('/logs/:jobId')
     .get(LogCtrl.readLog);
-router.param('jobId', UserCtrl.requireLogin, TaskCtrl.jobById);
+router.param('jobId', TaskCtrl.jobById, UserCtrl.requireLogin);
 
 export default router;

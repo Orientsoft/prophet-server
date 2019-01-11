@@ -13,6 +13,6 @@ router.route('/triggers/:triggerId')
     .get(TriggerCtrl.read)
     .put(TriggerCtrl.update)
     .delete(TriggerCtrl.remove);
-router.param('triggerId', UserCtrl.requireLogin, TriggerCtrl.triggerById);
+router.param('triggerId', TriggerCtrl.triggerById, UserCtrl.requireLogin);
 
 export default router;

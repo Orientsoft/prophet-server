@@ -11,6 +11,6 @@ router.route('/ports/:portId')
     .get(PortCtrl.read)
     .put(PortCtrl.update)
     .delete(PortCtrl.remove);
-router.param('portId', UserCtrl.requireLogin, PortCtrl.portById);
+router.param('portId', PortCtrl.portById, UserCtrl.requireLogin);
 
 export default router;

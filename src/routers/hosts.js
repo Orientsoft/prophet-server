@@ -11,6 +11,6 @@ router.route('/hosts/:hostId')
     .get(HostCtrl.read)
     .put(HostCtrl.update)
     .delete(HostCtrl.remove);
-router.param('hostId', UserCtrl.requireLogin, HostCtrl.hostById);
+router.param('hostId', HostCtrl.hostById, UserCtrl.requireLogin);
 
 export default router;
