@@ -12,7 +12,9 @@ const errors = {
     WRONG_PASSWORD: { code: 20006, message: '密码错误' }, // 已登录用户，修改密码需要输入原密码
     USER_NOT_FOUND: { code: 20008, message: '找不到用户' },
     ADMIN_REQUIRED: { code: 20010, message: '权限不足' },
-    
+    TOKEN_REQUIRED: { code: 20011, message: '未申请Token' },
+    WRONG_TOKEN: { code: 20012, message: 'Token错误' },
+
     VALIDATION_ERROR: {
         code: 20100, message: '验证错误', model: '', paths: []
     },

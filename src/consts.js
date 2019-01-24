@@ -70,3 +70,6 @@ export const PM2_LOG_BASE_PATH = '~/.pm2/logs';
 export const MAX_LOG_LINES = 100;
 
 export const WATCHDOG_INTERVAL = 2000;
+
+export const TOKEN_START = 1000;
+export const TOKEN_END = 9999;

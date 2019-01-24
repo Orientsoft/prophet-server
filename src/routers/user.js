@@ -17,12 +17,15 @@ router.route('/user/setMenus')
     .post(UserCtrl.requireAdmin, UserCtrl.setMenus);
 
 router.route('/user/login')
-    .post(UserCtrl.login);
+    .post(UserCtrl.requireToken, UserCtrl.login);
 
 router.route('/user/register')
     .post(UserCtrl.requireAdmin, UserCtrl.register);
 
 router.route('/user/logout')
     .post(UserCtrl.requireLogin, UserCtrl.logout);
+
+router.route('/user/token')
+    .get(UserCtrl.getRandomToken);
 
 export default router;

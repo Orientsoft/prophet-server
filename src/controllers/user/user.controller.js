@@ -6,6 +6,28 @@ import errors from '../../lib/errors';
 import config from '../../config';
 import User, { RoleType } from '../../models/user';
 
+export async function requireToken(req, res, next) {
+    try {
+        if (req.session.randomToken === undefined || req.session.randomToken == null) {
+            return res.status(400)
+                .send(JSON.stringify(errors.TOKEN_REQUIRED));
+        }
+
+        if (req.session.randomToken === req.get('Random-Token')) {
+            req.session.randomToken = null;
+            req.session.save();
+
+            return next();
+        }
+
+        return res.status(400)
+            .send(JSON.stringify(errors.WRONG_TOKEN));
+    } catch (err) {
+        logger.error(`UserControl::requireToken() error`, err);
+        return res.status(500).send(err.toString());
+    }
+}
+
 export async function requireLogin(req, res, next) {
     try {
         if (req.session.userId === undefined || req.session.userId == null) {
@@ -238,6 +260,22 @@ export async function setMenus(req, res) {
         res.status(400).json(response);
     } catch (err) {
         logger.error(`Failed to fetch user list. ${err.toString()}`);
+        return res.status(500).send(err.toString());
+    }
+}
+
+export async function getRandomToken(req, res) {
+    try {
+        const token = Math.floor(Math.random() * (CONSTS.TOKEN_END - CONSTS.TOKEN_START + 1) ) + CONSTS.TOKEN_START;
+        const tokenStr = token.toString();
+
+        req.session.randomToken = tokenStr;
+
+        return res.json({
+            token: tokenStr
+        });
+    } catch (err) {
+        logger.error(`Failed to get random token. ${err.toString()}`);
         return res.status(500).send(err.toString());
     }
 }
