@@ -13,7 +13,7 @@ export async function requireToken(req, res, next) {
                 .send(JSON.stringify(errors.TOKEN_REQUIRED));
         }
 
-        if (req.session.randomToken === req.get('Random-Token')) {
+        if ((parseInt(req.session.randomToken) - CONSTS.TOKEN_START) * 2 === parseInt(req.get('Random-Token'))) {
             req.session.randomToken = null;
             req.session.save();
 
