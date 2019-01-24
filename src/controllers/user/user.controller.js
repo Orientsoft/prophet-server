@@ -151,7 +151,7 @@ export async function info(req, res) {
 export async function logout(req, res) {
     try {
         res.clearCookie(CONSTS.USER_COOKIE_TOKEN_KEY);
-        delete req.session['userId'];
+				req.session.destroy();
         res.status(200).end();
     } catch (err) {
         logger.error(`Failed to logout. ${err.toString()}`);
@@ -187,34 +187,15 @@ export async function userList(req, res) {
  */
 export async function remove(req, res) {
     try {
-        const cookie = req.headers.cookie || '';
-        const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-        const response = { success: false };
-        if (!cookies[CONSTS.USER_COOKIE_TOKEN_KEY]) {
-            return res.status(403).send({ message: 'Not Login' });
-        }
-        const token = JSON.parse(cookies[CONSTS.USER_COOKIE_TOKEN_KEY]);
-        if (token) {
-            response.success = token.deadline > new Date().getTime();
-        }
-        let message = '';
-        if (response.success) {
-            const userItem = await User.findOne({ _id: token.id });
-            if (userItem) {
-                const role = userItem.toJSON().role;
-                if (role == RoleType.ADMIN || role == RoleType.DEVELOPER) {
-                    await User.deleteOne({ _id: req.body.id });
-                    response.success = true;
-                    return res.json(response);
-                }
-            } else {
-              message = 'User not found';
-            }
-        } else {
-          message = 'Invalid cookie';
-        }
-        response.message = message;
-        res.status(400).json(response);
+        await User.deleteOne({ _id: req.body.id });
+
+        res.clearCookie(CONSTS.USER_COOKIE_TOKEN_KEY);
+        req.session.destroy();
+                    
+        return res.json({
+            success: true,
+            message: ''
+        });
     } catch (err) {
         logger.error(`Failed to fetch user list. ${err.toString()}`);
         return res.status(500).send(err.toString());
