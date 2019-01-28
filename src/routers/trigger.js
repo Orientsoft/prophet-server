@@ -10,9 +10,9 @@ router.route('/triggers')
     .post(UserCtrl.requireLogin, TriggerCtrl.create);
 
 router.route('/triggers/:triggerId')
-    .get(TriggerCtrl.read)
-    .put(TriggerCtrl.update)
-    .delete(TriggerCtrl.remove);
-router.param('triggerId', TriggerCtrl.triggerById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, TriggerCtrl.read)
+    .put(UserCtrl.requireLogin, TriggerCtrl.update)
+    .delete(UserCtrl.requireLogin, TriggerCtrl.remove);
+router.param('triggerId', TriggerCtrl.triggerById);
 
 export default router;

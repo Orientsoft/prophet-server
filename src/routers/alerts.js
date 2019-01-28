@@ -8,9 +8,9 @@ router.route('/alerts')
     .get(UserCtrl.requireLogin, AlertCtrl.list)
     .post(UserCtrl.requireLogin, AlertCtrl.create);
 router.route('/alerts/:alertId')
-    .get(AlertCtrl.read)
-    .put(AlertCtrl.update)
-    .delete(AlertCtrl.remove);
-router.param('alertId', AlertCtrl.alertById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, AlertCtrl.read)
+    .put(UserCtrl.requireLogin, AlertCtrl.update)
+    .delete(UserCtrl.requireLogin, AlertCtrl.remove);
+router.param('alertId', AlertCtrl.alertById);
 
 export default router;

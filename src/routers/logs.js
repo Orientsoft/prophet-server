@@ -6,7 +6,7 @@ import UserCtrl from '../controllers/user';
 const router = express.Router();
 
 router.route('/logs/:jobId')
-    .get(LogCtrl.readLog);
-router.param('jobId', TaskCtrl.jobById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, LogCtrl.readLog);
+router.param('jobId', TaskCtrl.jobById);
 
 export default router;

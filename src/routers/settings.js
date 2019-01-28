@@ -6,7 +6,7 @@ const router = express.Router();
 
 // settings
 router.route('/settings/menus')
-    .get(UserCtrl.requireLogin, SettingsCtrl.menuList)
+    .get(UserCtrl.requireLogin, SettingsCtrl.menuList);
 
 
 export default router;

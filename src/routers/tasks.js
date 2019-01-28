@@ -10,10 +10,10 @@ router.route('/tasks')
     .post(UserCtrl.requireLogin, TaskCtrl.create);
 
 router.route('/tasks/:taskId')
-    .get(TaskCtrl.read)
-    .put(TaskCtrl.update)
-    .delete(TaskCtrl.remove);
-router.param('taskId', TaskCtrl.taskById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, TaskCtrl.read)
+    .put(UserCtrl.requireLogin, TaskCtrl.update)
+    .delete(UserCtrl.requireLogin, TaskCtrl.remove);
+router.param('taskId', TaskCtrl.taskById);
 
 // job
 router.route('/jobs')
@@ -22,8 +22,8 @@ router.route('/jobs')
     .delete(UserCtrl.requireLogin, TaskCtrl.stopAll);
 
 router.route('/jobs/:jobId')
-    .get(TaskCtrl.read) // TODO : implementation
-    .delete(TaskCtrl.stop);
-router.param('jobId', TaskCtrl.jobById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, TaskCtrl.read) // TODO : implementation
+    .delete(UserCtrl.requireLogin, TaskCtrl.stop);
+router.param('jobId', TaskCtrl.jobById);
 
 export default router;

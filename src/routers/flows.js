@@ -16,9 +16,9 @@ router.route('/flows/:flowId/jobs')
     );
 
 router.route('/flows/:flowId')
-    .get(FlowCtrl.read)
-    .put(FlowCtrl.update)
-    .delete(FlowCtrl.remove);
-router.param('flowId', FlowCtrl.flowById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, FlowCtrl.read)
+    .put(UserCtrl.requireLogin, FlowCtrl.update)
+    .delete(UserCtrl.requireLogin, FlowCtrl.remove);
+router.param('flowId', FlowCtrl.flowById);
 
 export default router;

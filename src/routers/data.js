@@ -10,9 +10,9 @@ router.route('/data')
     .post(UserCtrl.requireLogin, DataCtrl.create);
 
 router.route('/data/:dataId')
-    .get(DataCtrl.read)
-    .put(DataCtrl.update)
-    .delete(DataCtrl.remove);
-router.param('dataId', DataCtrl.dataById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, DataCtrl.read)
+    .put(UserCtrl.requireLogin, DataCtrl.update)
+    .delete(UserCtrl.requireLogin, DataCtrl.remove);
+router.param('dataId', DataCtrl.dataById);
 
 export default router;

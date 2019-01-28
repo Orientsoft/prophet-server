@@ -8,9 +8,9 @@ router.route('/hosts')
     .get(UserCtrl.requireLogin, HostCtrl.list)
     .post(UserCtrl.requireLogin, HostCtrl.create);
 router.route('/hosts/:hostId')
-    .get(HostCtrl.read)
-    .put(HostCtrl.update)
-    .delete(HostCtrl.remove);
-router.param('hostId', HostCtrl.hostById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, HostCtrl.read)
+    .put(UserCtrl.requireLogin, HostCtrl.update)
+    .delete(UserCtrl.requireLogin, HostCtrl.remove);
+router.param('hostId', HostCtrl.hostById);
 
 export default router;

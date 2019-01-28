@@ -7,16 +7,16 @@ const router = express.Router();
 // structures
 router.route('/structures')
     .get(UserCtrl.requireLogin, StructuresCtrl.structrueList)
-    .post(UserCtrl.requireLogin, StructuresCtrl.create)
+    .post(UserCtrl.requireLogin, StructuresCtrl.create);
 
 router.route('/structures/:structureId')
-    .get(StructuresCtrl.read)
-    .put(StructuresCtrl.update)
-    .delete(StructuresCtrl.remove)
+    .get(UserCtrl.requireLogin, StructuresCtrl.read)
+    .put(UserCtrl.requireLogin, StructuresCtrl.update)
+    .delete(UserCtrl.requireLogin, StructuresCtrl.remove);
 
-router.param('structureId', StructuresCtrl.getStructureById, UserCtrl.requireLogin)
+router.param('structureId', StructuresCtrl.getStructureById);
 
 router.route('/meta-structure')
-    .get(UserCtrl.requireLogin, StructuresCtrl.structrueMetaData)
+    .get(UserCtrl.requireLogin, StructuresCtrl.structrueMetaData);
 
 export default router;

@@ -8,9 +8,9 @@ router.route('/ports')
     .get(UserCtrl.requireLogin, PortCtrl.list)
     .post(UserCtrl.requireLogin, PortCtrl.create);
 router.route('/ports/:portId')
-    .get(PortCtrl.read)
-    .put(PortCtrl.update)
-    .delete(PortCtrl.remove);
-router.param('portId', PortCtrl.portById, UserCtrl.requireLogin);
+    .get(UserCtrl.requireLogin, PortCtrl.read)
+    .put(UserCtrl.requireLogin, PortCtrl.update)
+    .delete(UserCtrl.requireLogin, PortCtrl.remove);
+router.param('portId', PortCtrl.portById);
 
 export default router;
